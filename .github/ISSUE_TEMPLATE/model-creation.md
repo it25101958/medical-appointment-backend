@@ -23,6 +23,3 @@ Create the **[Model Name]** model class to represent the **[Entity/Description]*
 - **updated_at**: Timestamp of the last update to the user’s details.
 
 Ensure appropriate validation and relationships with other entities (e.g., Doctor, Patient).
-
-### User Story
-As a **developer**, I want to create a **[Model Name]** class so that we can manage **[entity]** data in the database.

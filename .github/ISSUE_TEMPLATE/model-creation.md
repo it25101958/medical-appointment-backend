@@ -42,6 +42,3 @@ Create the **[Model]** model class to represent the **[Entity Description]** in 
 - **`feature`**
 - **`model`**
 - **`high-priority`**
-
-### Assignees:
-- Assign this task to the developer responsible for creating the [Model] class (e.g., "John Doe").

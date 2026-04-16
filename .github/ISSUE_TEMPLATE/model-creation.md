@@ -1,12 +1,3 @@
----
-name: 'Create Model Class'
-about: 'Template for creating a new model class'
-title: 'Create [Model] Model Class'
-labels: ['feature', 'model', 'backend']
-assignees: ''
-
----
-
 ### Description
 Create the **[Model Name]** model class to represent the **[Entity/Description]** in the database.
 
@@ -21,5 +12,3 @@ Create the **[Model Name]** model class to represent the **[Entity/Description]*
 - **is_active**: Boolean indicating if the account is active.
 - **created_at**: Timestamp of when the user was created.
 - **updated_at**: Timestamp of the last update to the user’s details.
-
-Ensure appropriate validation and relationships with other entities (e.g., Doctor, Patient).

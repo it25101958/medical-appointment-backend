@@ -1,25 +1,29 @@
 ---
-name: 'Create Model Class'
-about: 'Template for creating a new model class'
-title: 'Create [Model] Model Class'
-labels: ['feature', 'model', 'backend']
-assignees: ''
-
+name: Create Model Class
+about: Standardized template for medical system entities
+title: 'Model: [Name]'
+labels: ['backend', 'model']
 ---
 
-### Description
-Create the **[Model Name]** model class to represent the **[Entity/Description]** in the database.
+**Architecture**
+* Type: [Shared PK | Standalone | Bridge]
+* Relationships: [e.g., Doctor to Patient]
+* Fetch Strategy: Lazy
 
-**Fields:**
-- **user_id**: Unique identifier for the user (primary key).
-- **email**: Email of the user.
-- **password_hash**: Securely stored hashed password.
-- **role_type**: (int) Role of the user (e.g., 1 = 'patient', 2 = 'doctor').
-- **first_name**: User's first name.
-- **last_name**: User's last name.
-- **phone**: Contact phone number.
-- **is_active**: Boolean indicating if the account is active.
-- **created_at**: Timestamp of when the user was created.
-- **updated_at**: Timestamp of the last update to the user’s details.
+**Fields and Validation**
 
-Ensure appropriate validation and relationships with other entities (e.g., Doctor, Patient).
+| Field | Data Type | Constraints / Validation |
+| :--- | :--- | :--- |
+| id | Integer | @Id / @MapsId (if applicable) |
+| [Field] | [Type] | @NotNull, @Size, @Pattern |
+| [Enum] | Enum | @Enumerated(EnumType.STRING) |
+
+**Technical Requirements**
+* Timestamps: CreatedAt and UpdatedAt (Hibernate)
+* Annotations: Lombok @Getter, @Setter, @NoArgsConstructor
+* Compiler Fix: Manual getValue() for Enums (Java 25)
+
+**Acceptance Criteria**
+* JPA column lengths match validation constraints
+* Entity compiles successfully via `mvn clean compile`
+* No circular dependencies in relationships

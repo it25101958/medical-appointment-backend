@@ -1,4 +1,9 @@
-### Model: [Name]
+---
+name: Create Model Class
+about: Standardized template for medical system entities
+title: 'Model: [Name]'
+labels: ['backend', 'model']
+---
 
 **Architecture**
 * Type: [Shared PK | Standalone | Bridge]

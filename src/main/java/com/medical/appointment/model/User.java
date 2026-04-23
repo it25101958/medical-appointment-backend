@@ -69,7 +69,15 @@ public class User {
     private String address;
 
     @Column(nullable = false)
-    private Boolean isActive = true;
+    private Boolean isActive = false;
+
+    @Column(length = 6)
+    @Size(min = 6, max = 6, message = "Verification code must be exactly 6 digits")
+    private String verificationCode;
+
+    @Column
+    @FutureOrPresent(message = "Expiry time cannot be in the past")
+    private LocalDateTime codeExpiry;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

@@ -1,6 +1,6 @@
 package com.medical.appointment.controller;
 
-import com.medical.appointment.dto.UserDTO;
+import com.medical.appointment.dto.user.response.UserResponse;
 import com.medical.appointment.model.User;
 import com.medical.appointment.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +24,8 @@ public class UserController {
 
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
-        Optional<UserDTO> user = userService.getUserByEmail(email);
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
+        Optional<UserResponse> user = userService.getUserByEmail(email);
         return user.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }

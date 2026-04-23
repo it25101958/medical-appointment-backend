@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,10 +36,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadRequest(HttpMessageNotReadableException ex) {
         // Corrected: Arguments are now (String, int) to match your constructor
         ErrorResponse error = new ErrorResponse(
-                "The request body is missing or formatted incorrectly. Please check your JSON syntax.",
+                "The request body is missing or formatted incorrectly",
                 HttpStatus.BAD_REQUEST.value()
         );
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(VerificationException.class)
+    public ResponseEntity<ErrorResponse> handleVerificationException(VerificationException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.GONE.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.GONE);
     }
 }

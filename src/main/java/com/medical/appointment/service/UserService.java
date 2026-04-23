@@ -1,6 +1,6 @@
 package com.medical.appointment.service;
 
-import com.medical.appointment.dto.UserDTO;
+import com.medical.appointment.dto.user.response.UserResponse;
 import com.medical.appointment.model.User;
 import com.medical.appointment.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +23,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<UserDTO> getUserByEmail(String email) {
+    public Optional<UserResponse> getUserByEmail(String email) {
         Optional<User> userOptional = userRepository.findByEmail(email);
-        return userOptional.map(user -> new UserDTO(
+        return userOptional.map(user -> new UserResponse(
                 user.getUserId(),
                 user.getEmail(),
                 user.getFirstName(),

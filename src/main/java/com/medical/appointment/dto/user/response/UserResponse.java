@@ -1,4 +1,4 @@
-package com.medical.appointment.dto;
+package com.medical.appointment.dto.user.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class UserResponse {
 
     private Integer userId;
     private String email;

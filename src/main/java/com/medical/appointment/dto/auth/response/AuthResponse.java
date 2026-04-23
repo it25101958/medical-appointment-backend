@@ -1,4 +1,4 @@
-package com.medical.appointment.dto;
+package com.medical.appointment.dto.auth.response;
 
 import com.medical.appointment.model.User;
 import lombok.AllArgsConstructor;

@@ -22,6 +22,7 @@ public class LabOrderItem {
     @Column(name = "lab_order_item_id")
     private Integer id;
 
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lab_order_id", nullable = false)

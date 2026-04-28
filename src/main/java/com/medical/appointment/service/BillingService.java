@@ -29,7 +29,6 @@ public class BillingService {
         return billingRepository.save(billing);
     }
 
-    //  READ - Get one bill by ID
     public Optional<Billing> getBillingById(Integer id) {
         return billingRepository.findById(id);
     }

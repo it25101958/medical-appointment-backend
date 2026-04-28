@@ -1,4 +1,9 @@
 package com.medical.appointment.model.enums;
 
-public class AppointmentStatus {
+
+public enum AppointmentStatus {
+    SCHEDULED,
+    CANCELLED,
+    COMPLETED,
+    NO_SHOW
 }

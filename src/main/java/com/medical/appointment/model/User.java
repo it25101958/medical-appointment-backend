@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,7 +31,7 @@ public class User {
 
     @Column(nullable = false)
     @NotNull(message = "Password cannot be null")
-    private String passwordHash;
+    private String password;
 
     @Column(nullable = false)
     private int roleType = UserRole.PATIENT.getValue();
@@ -56,7 +57,7 @@ public class User {
     @Column(nullable = false)
     @NotNull(message = "Date of birth cannot be null")
     @Past(message = "Date of birth must be in the past")
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
@@ -68,7 +69,15 @@ public class User {
     private String address;
 
     @Column(nullable = false)
-    private Boolean isActive = true;
+    private Boolean isActive = false;
+
+    @Column(length = 6)
+    @Size(min = 6, max = 6, message = "Verification code must be exactly 6 digits")
+    private String verificationCode;
+
+    @Column
+    @FutureOrPresent(message = "Expiry time cannot be in the past")
+    private LocalDateTime codeExpiry;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

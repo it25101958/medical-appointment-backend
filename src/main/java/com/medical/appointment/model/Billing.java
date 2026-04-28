@@ -1,4 +1,82 @@
 package com.medical.appointment.model;
 
+import com.medical.appointment.appointment.model.Appointment;
+import com.medical.appointment.patient.model.Patient;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "billing")
+@Getter
+@Setter
+@NoArgsConstructor
+
 public class Billing {
+    // Primary Key - auto generated (1, 2, 3...)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer billingId;
+
+    // Links to the Appointment table
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id", nullable = false)
+    private Appointment appointment;
+
+    // Links to the Patient table
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private Patient patient;
+
+    // Money fields
+    @NotNull
+    @DecimalMin("0.0")
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalAmount;
+
+    @DecimalMin("0.0")
+    @Column(precision = 10, scale = 2)
+    private BigDecimal discount;
+
+    @DecimalMin("0.0")
+    @Column(precision = 10, scale = 2)
+    private BigDecimal tax;
+
+    @NotNull
+    @DecimalMin("0.0")
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal finalAmount;
+
+    // Date fields
+    @NotNull
+    @Column(nullable = false)
+    private LocalDate billingDate;
+
+    @NotNull
+    @Column(nullable = false)
+    private LocalDate dueDate;
+
+    // Status (PENDING, PAID, CANCELLED)
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private BillingStatus status;
+
+    // Auto-managed timestamps
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 }

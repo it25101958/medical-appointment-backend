@@ -1,5 +1,6 @@
 package com.medical.appointment.model;
 
+import com.medical.appointment.model.enums.BillingStatus;
 import com.medical.appointment.appointment.model.Appointment;
 import com.medical.appointment.patient.model.Patient;
 import jakarta.persistence.*;

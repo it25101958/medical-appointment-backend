@@ -24,7 +24,7 @@ public class BillingService {
                 billing.getDiscount(),
                 billing.getTax()
         ));
-        // Set default status to PENDING
+
         billing.setStatus(BillingStatus.PENDING);
         return billingRepository.save(billing);
     }

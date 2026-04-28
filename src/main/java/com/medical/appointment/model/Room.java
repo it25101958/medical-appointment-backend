@@ -52,4 +52,5 @@ public class Room {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
 }

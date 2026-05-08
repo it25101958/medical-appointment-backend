@@ -22,10 +22,10 @@ import java.time.LocalDateTime;
 public class Patient {
 
     @Id
-    private Integer userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer patientId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

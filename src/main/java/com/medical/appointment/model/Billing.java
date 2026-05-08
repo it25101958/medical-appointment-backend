@@ -1,8 +1,7 @@
 package com.medical.appointment.model;
 
 import com.medical.appointment.model.enums.BillingStatus;
-import com.medical.appointment.appointment.model.Appointment;
-import com.medical.appointment.patient.model.Patient;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -23,7 +22,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 
 public class Billing {
-    // Primary Key - auto generated (1, 2, 3...)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer billingId;
@@ -57,7 +55,6 @@ public class Billing {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal finalAmount;
 
-    // Date fields
     @NotNull
     @Column(nullable = false)
     private LocalDate billingDate;
@@ -66,13 +63,11 @@ public class Billing {
     @Column(nullable = false)
     private LocalDate dueDate;
 
-    // Status (PENDING, PAID, CANCELLED)
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private BillingStatus status;
 
-    // Auto-managed timestamps
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

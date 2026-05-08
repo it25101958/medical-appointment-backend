@@ -26,17 +26,14 @@ public class Billing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer billingId;
 
-    // Links to the Appointment table
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "appointment_id", nullable = false)
     private Appointment appointment;
 
-    // Links to the Patient table
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    // Money fields
     @NotNull
     @DecimalMin("0.0")
     @Column(nullable = false, precision = 10, scale = 2)

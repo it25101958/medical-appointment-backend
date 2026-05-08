@@ -49,7 +49,7 @@ public class Appointment {
 
     @Min(value = 1, message = "Appointment number must be at least 1")
     @Column(name = "appointment_number")
-    private Integer appointmentNumber; // Nullable for cancellations
+    private Integer appointmentNumber;
 
     @NotNull
     @Min(value = 1)

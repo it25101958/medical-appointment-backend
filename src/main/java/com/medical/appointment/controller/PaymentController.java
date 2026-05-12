@@ -28,4 +28,24 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getAllPayments());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Payment> getPaymentById(@PathVariable Integer id) {
+        return paymentService.getPaymentById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<Payment>> getPaymentsByPatient(
+            @PathVariable Integer patientId) {
+        return ResponseEntity.ok(paymentService.getPaymentsByPatient(patientId));
+    }
+
+
+    @GetMapping("/appointment/{appointmentId}")
+    public ResponseEntity<List<Payment>> getPaymentsByAppointment(
+            @PathVariable Integer appointmentId) {
+        return ResponseEntity.ok(paymentService.getPaymentsByAppointment(appointmentId));
+    }
 }

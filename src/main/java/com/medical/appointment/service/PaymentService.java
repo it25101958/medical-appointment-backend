@@ -28,4 +28,20 @@ public class PaymentService {
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
     }
+
+    public Payment updatePayment(Integer id, Payment updatedPayment) {
+        return paymentRepository.findById(id).map(existing -> {
+            existing.setAmount(updatedPayment.getAmount());
+            existing.setPaymentMethod(updatedPayment.getPaymentMethod());
+            existing.setPaymentStatus(updatedPayment.getPaymentStatus());
+            existing.setTransactionId(updatedPayment.getTransactionId());
+            existing.setPatient(updatedPayment.getPatient());
+            existing.setAppointment(updatedPayment.getAppointment());
+            return paymentRepository.save(existing);
+        }).orElseThrow(() -> new RuntimeException("Payment not found with id: " + id));
+    }
+
+    public void deletePayment(Integer id) {
+        paymentRepository.deleteById(id);
+    }
 }

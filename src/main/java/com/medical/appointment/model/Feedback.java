@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Data
@@ -50,8 +53,7 @@ public class Feedback {
     @Column(nullable = false, length = 20)
     private FeedbackStatus status;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
+    @CreationTimestamp
     @Column(nullable = false, length = 20)
     private LocalDateTime createdAt;
 

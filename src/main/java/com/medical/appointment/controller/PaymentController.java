@@ -48,4 +48,37 @@ public class PaymentController {
             @PathVariable Integer appointmentId) {
         return ResponseEntity.ok(paymentService.getPaymentsByAppointment(appointmentId));
     }
+
+
+    @GetMapping("/status/{paymentStatus}")
+    public ResponseEntity<List<Payment>> getPaymentsByStatus(
+            @PathVariable Integer paymentStatus) {
+        return ResponseEntity.ok(paymentService.getPaymentsByStatus(paymentStatus));
+    }
+
+
+    @GetMapping("/transaction/{transactionId}")
+    public ResponseEntity<Payment> getPaymentByTransactionId(
+            @PathVariable String transactionId) {
+        Payment payment = paymentService.getPaymentByTransactionId(transactionId);
+        if (payment != null) {
+            return ResponseEntity.ok(payment);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Payment> updatePayment(
+            @PathVariable Integer id,
+            @RequestBody Payment payment) {
+        return ResponseEntity.ok(paymentService.updatePayment(id, payment));
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePayment(@PathVariable Integer id) {
+        paymentService.deletePayment(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -27,15 +27,27 @@ public class Feedback {
     private int feedbackId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id", nullable = false)
+    @JoinColumn(
+            name = "appointment_id",
+            referencedColumnName = "appointmentId",
+            nullable = false
+    )
     private Appointment appointment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false)
+    @JoinColumn(
+            name = "patient_id",
+            referencedColumnName = "patientId",
+            nullable = false
+    )
     private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
+    @JoinColumn(
+            name = "doctor_id",
+            referencedColumnName = "doctorId",
+            nullable = false
+    )
     private Doctor doctor;
 
     @NotNull

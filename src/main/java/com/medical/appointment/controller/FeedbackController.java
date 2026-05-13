@@ -12,91 +12,95 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/feedbacks")
+@RequestMapping("/api/v1/feedbacks")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class FeedbackController {
-
     private final FeedbackService feedbackService;
 
-
-    // Create a new feedback
-    @PostMapping
-    public ResponseEntity<Feedback> createFeedback(@Valid @RequestBody Feedback feedback) {
-        Feedback created = feedbackService.createFeedback(feedback);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @Transactional
+    public Feedback createFeedback(Feedback feedback) {
+        feedback.setStatus(FeedbackStatus.PENDING);
+        return feedbackRepository.save(feedback);
     }
 
-    // Get all feedbacks
-    @GetMapping
-    public ResponseEntity<List<Feedback>> getAllFeedbacks() {
-        return ResponseEntity.ok(feedbackService.getAllFeedbacks());
+    // get feedback (READ)
+    public Feedback getFeedbackById(int feedbackId) {
+        return feedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Feedback not found with id: " + feedbackId));
     }
 
-    // Get one feedback by its ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Feedback> getFeedbackById(@PathVariable int id) {
-        return ResponseEntity.ok(feedbackService.getFeedbackById(id));
+    public List<Feedback> getAllFeedbacks() {
+        return feedbackRepository.findAll();
     }
 
-    // Get single feedback by doctor
-    @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<Feedback> getFeedbackByDoctor(@PathVariable int doctorId) {
-        return ResponseEntity.ok(feedbackService.getFeedbackByDoctor(doctorId));
+    public List<Feedback> getFeedbacksByDoctor(int doctorId) {
+        return feedbackRepository.findByDoctorDoctorId(doctorId);
     }
 
-    // Get all feedbacks for a doctor
-    @GetMapping("/doctor/{doctorId}/all")
-    public ResponseEntity<List<Feedback>> getAllFeedbacksByDoctor(@PathVariable int doctorId) {
-        return ResponseEntity.ok(feedbackService.getFeedbacksByDoctor(doctorId));
+    public List<Feedback> getFeedbacksByPatient(int patientId) {
+        return feedbackRepository.findByPatientPatientId(patientId);
     }
 
-    // Get single feedback by patient
-    @GetMapping("/patient/{patientId}")
-    public ResponseEntity<Feedback> getFeedbackByPatient(@PathVariable int patientId) {
-        return ResponseEntity.ok(feedbackService.getFeedbackByPatient(patientId));
+    public List<Feedback> getFeedbacksByAppointment(int appointmentId) {
+        return feedbackRepository.findByAppointmentAppointmentId(appointmentId);
     }
 
-    // Get all feedbacks for a patient
-    @GetMapping("/patient/{patientId}/all")
-    public ResponseEntity<List<Feedback>> getAllFeedbacksByPatient(@PathVariable int patientId) {
-        return ResponseEntity.ok(feedbackService.getFeedbacksByPatient(patientId));
+    public List<Feedback> getFeedbacksByStatus(FeedbackStatus status) {
+        return feedbackRepository.findByStatus(status);
     }
 
-    // Get all feedbacks for an appointment
-    @GetMapping("/appointment/{appointmentId}")
-    public ResponseEntity<List<Feedback>> getFeedbacksByAppointment(
-            @PathVariable int appointmentId) {
-        return ResponseEntity.ok(feedbackService.getFeedbacksByAppointment(appointmentId));
+    //  patents' view approved feedback for a doctor
+    public List<Feedback> getApprovedFeedbacksByDoctor(int doctorId) {
+        return feedbackRepository.findByDoctorDoctorId(doctorId).stream()
+                .filter(f -> f.getStatus() == FeedbackStatus.APPROVED)
+                .collect(java.util.stream.Collectors.toList());
     }
 
-    // Get feedbacks filtered by status(pending, approved, rejected, archived)
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Feedback>> getFeedbacksByStatus(
-            @PathVariable FeedbackStatus status) {
-        return ResponseEntity.ok(feedbackService.getFeedbacksByStatus(status));
+    // patients can edit the feed back only within 20 min(UPDATE)
+    @Transactional
+    public Feedback updateFeedback(int feedbackId, Feedback updatedFeedback) {
+        Feedback existing = getFeedbackById(feedbackId);
+
+        // 20 min edit window checking
+        if (existing.getCreatedAt().isBefore(
+                java.time.LocalDateTime.now().minusMinutes(20))) {
+            throw new IllegalStateException(
+                    "Feedback can only be edited within 20 minutes of creation.");
+        }
+
+        existing.setRating(updatedFeedback.getRating());
+        existing.setComments(updatedFeedback.getComments());
+        return feedbackRepository.save(existing);
     }
 
-    // Update rating and comments of a feedback
-    @PutMapping("/{id}")
-    public ResponseEntity<Feedback> updateFeedback(
-            @PathVariable int id,
-            @Valid @RequestBody Feedback feedback) {
-        return ResponseEntity.ok(feedbackService.updateFeedback(id, feedback));
+    @Transactional
+    public Feedback updateFeedbackStatus(int feedbackId, FeedbackStatus status) {
+        Feedback existing = getFeedbackById(feedbackId);
+        existing.setStatus(status);
+        return feedbackRepository.save(existing);
     }
 
-    // Update only the status (admin use: approve / reject)
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<Feedback> updateFeedbackStatus(
-            @PathVariable int id,
-            @RequestParam FeedbackStatus status) {
-        return ResponseEntity.ok(feedbackService.updateFeedbackStatus(id, status));
+    // delete feedbacks
+    @Transactional
+    public void deleteFeedback(int feedbackId) {
+        if (!feedbackRepository.existsById(feedbackId)) {
+            throw new EntityNotFoundException(
+                    "Feedback not found with id: " + feedbackId);
+        }
+        feedbackRepository.deleteById(feedbackId);
     }
 
-    // Delete a feedback
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFeedback(@PathVariable int id) {
-        feedbackService.deleteFeedback(id);
-        return ResponseEntity.noContent().build();
+    // find feedbacks
+    public Feedback getFeedbackByPatient(int patientId) {
+        return feedbackRepository.findFirstByPatientPatientId(patientId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No feedback found for patient id: " + patientId));
+    }
+
+    public Feedback getFeedbackByDoctor(int doctorId) {
+        return feedbackRepository.findFirstByDoctorDoctorId(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "No feedback found for doctor id: " + doctorId));
     }
 }

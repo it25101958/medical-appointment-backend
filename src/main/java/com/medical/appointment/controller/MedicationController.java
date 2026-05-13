@@ -8,18 +8,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/medications")
+@RequestMapping("/api/v1/medications")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
-public class MedicationController {
 
+public class MedicationController {
     private final MedicationService medicationService;
 
-    // Create a new medication (POST/api/medications)
+    // To allow only Admins and Doctors to access the createMedication() endpoint
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @PostMapping
     public ResponseEntity<Medication> createMedication(
             @Valid @RequestBody Medication medication) {

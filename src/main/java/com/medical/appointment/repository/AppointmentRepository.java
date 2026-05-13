@@ -12,20 +12,16 @@ import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
+    List<Appointment> findByPatient_PatientId(Integer patientId);
+    List<Appointment> findByDoctor_DoctorId(Integer doctorId);
 
-    List<Appointment> findByPatient_Id(Integer patientId);
-    List<Appointment> findByDoctor_Id(Integer doctorId);
-
-
-    @Query("""
-        SELECT a FROM Appointment a
-        WHERE a.doctor.id = :doctorId
-        AND a.appointmentDate = :date
-        AND (
-            a.appointmentTime < :endTime
-            AND (a.appointmentTime + a.durationMinutes * 1/1440.0) > :startTime
-        )
-    """)
+    @Query(value = """
+        SELECT * FROM appointments a
+        WHERE a.doctor_id = :doctorId
+        AND a.appointment_date = :date
+        AND a.appointment_time < :endTime
+        AND ADDTIME(a.appointment_time, SEC_TO_TIME(a.duration_minutes * 60)) > :startTime
+    """, nativeQuery = true)
     List<Appointment> findConflictingAppointments(
             @Param("doctorId") Integer doctorId,
             @Param("date") LocalDate date,
@@ -33,4 +29,3 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
             @Param("endTime") LocalTime endTime
     );
 }
-

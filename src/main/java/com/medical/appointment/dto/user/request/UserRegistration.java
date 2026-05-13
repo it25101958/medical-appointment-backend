@@ -1,4 +1,4 @@
-package com.medical.appointment.dto;
+package com.medical.appointment.dto.user.request;
 
 import com.medical.appointment.model.enums.Gender;
 import jakarta.validation.constraints.*;
@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

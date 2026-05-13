@@ -26,17 +26,17 @@ public class RoomSchedule {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", referencedColumnName = "id")
+    @JoinColumn(name = "doctor_id")
     private Doctor doctor;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", referencedColumnName = "id")
+    @JoinColumn(name = "room_id", referencedColumnName = "roomId")
     private Room room;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id", referencedColumnName = "id")
+    @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId")
     private Appointment appointment;
 
     @NotNull

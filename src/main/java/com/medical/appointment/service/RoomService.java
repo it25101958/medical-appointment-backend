@@ -73,6 +73,15 @@ public class RoomService {
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
     }
 
+    @Transactional
+    public void deleteRoom(Integer id) {
+        securityAccessUtil.validateAdminLevel(AccessLevel.SUPER_ADMIN);
+        if (!roomRepository.existsById(id)) {
+            throw new EntityNotFoundException("Room not found");
+        }
+        roomRepository.deleteById(id);
+    }
+
 
 
 }

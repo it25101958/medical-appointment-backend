@@ -1,5 +1,9 @@
 package com.medical.appointment.service;
 
+import com.medical.appointment.model.Patient;
+import com.medical.appointment.model.Doctor;
+import com.medical.appointment.model.Room;
+
 import com.medical.appointment.dto.appoinment.request.appointmentCreateRequest;
 import com.medical.appointment.dto.appoinment.request.appointmentUpdateRequest;
 import com.medical.appointment.dto.appoinment.request.appointmentStatusUpdateRequest;

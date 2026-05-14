@@ -22,7 +22,6 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.createPayment(payment));
     }
 
-
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<List<Payment>> getAllPayments() {

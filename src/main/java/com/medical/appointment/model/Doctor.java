@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class Doctor {
 
     @Id
-    private Integer userId;
+    private Integer doctorId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId

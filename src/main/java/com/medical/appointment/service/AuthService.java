@@ -51,7 +51,17 @@ public class AuthService {
             throw new AccessDeniedException("Account is deactivated. Please contact support.");
         }
 
-        String token = jwtTokenUtil.generateToken(user.getEmail(), String.valueOf(user.getRoleType()));
+        String roleClaim;
+        if (user.getRoleType() == UserRole.ADMIN.getValue()) {
+            Admin admin = adminRepository.findById(user.getUserId())
+                    .orElseThrow(() -> new AccessDeniedException("Admin profile missing"));
+            roleClaim = admin.getAccessLevel().name();
+        } else {
+
+            roleClaim = UserRole.fromInt(user.getRoleType()).name();
+        }
+
+        String token = jwtTokenUtil.generateToken(user.getEmail(), roleClaim);
         return new AuthResponse(token, user);
     }
 

@@ -23,6 +23,10 @@ public class AppoinmentService {
 
     private final AppointmentRepository appointmentRepository;
 
+    private final PatientRepository patientRepository;
+    private final DoctorRepository doctorRepository;
+    private final RoomRepository roomRepository;
+
     public Appointment createAppointment(appointmentCreateRequest request) {
         Appointment appointment = new Appointment();
 

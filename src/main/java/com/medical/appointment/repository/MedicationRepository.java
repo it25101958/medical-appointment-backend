@@ -1,7 +1,7 @@
 package com.medical.appointment.repository;
 
 import com.medical.appointment.model.Medication;
-import com.medical.appointment.model.MedicationStatus;
+import com.medical.appointment.model.enums.MedicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

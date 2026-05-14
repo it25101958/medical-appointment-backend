@@ -6,6 +6,11 @@ import com.medical.appointment.dto.appoinment.request.appointmentStatusUpdateReq
 import com.medical.appointment.model.Appointment;
 import com.medical.appointment.model.enums.AppointmentStatus;
 import com.medical.appointment.repository.AppointmentRepository;
+
+import com.medical.appointment.repository.PatientRepository;
+import com.medical.appointment.repository.DoctorRepository;
+import com.medical.appointment.repository.RoomRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -5,6 +5,7 @@ import com.medical.appointment.model.Doctor;
 import com.medical.appointment.model.Room;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import com.medical.appointment.dto.appoinment.request.appointmentCreateRequest;
 import com.medical.appointment.dto.appoinment.request.appointmentUpdateRequest;
@@ -58,6 +59,20 @@ public class AppoinmentService {
 
         if (request.getAppointmentDate().isBefore(LocalDate.now())) {
             throw new RuntimeException("Appointment date cannot be in the past");
+        }
+
+        LocalTime endTime = request.getAppointmentTime()
+                .plusMinutes(request.getDurationMinutes());
+
+        List<Appointment> conflicts = appointmentRepository.findConflictingAppointments(
+                request.getDoctorId(),
+                request.getAppointmentDate(),
+                request.getAppointmentTime(),
+                endTime
+        );
+
+        if (!conflicts.isEmpty()) {
+            throw new RuntimeException("Doctor already has an appointment during this time");
         }
 
         return appointmentRepository.save(appointment);

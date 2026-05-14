@@ -25,4 +25,18 @@ public class RoomScheduleService {
     private final DoctorRepository doctorRepository;
     private final AppointmentRepository appointmentRepository;
     private final SecurityAccessUtil securityAccessUtil;
+
+    private RoomScheduleResponse mapToResponse(RoomSchedule s) {
+        return new RoomScheduleResponse(
+                s.getRoomScheduleId(),
+                s.getRoom().getRoomNumber(),
+                "Dr. " + s.getDoctor().getUser().getLastName(),
+                s.getAppointment().getAppointmentNumber(),
+                s.getDayOfWeek(),
+                s.getStartTime(),
+                s.getEndTime(),
+                s.getCreatedAt(),
+                s.getUpdatedAt()
+        );
+    }
 }

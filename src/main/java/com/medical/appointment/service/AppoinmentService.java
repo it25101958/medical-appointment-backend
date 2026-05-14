@@ -75,6 +75,8 @@ public class AppoinmentService {
             throw new RuntimeException("Doctor already has an appointment during this time");
         }
 
+        appointment.setAppointmentNumber((int) (Math.random() * 10000));
+
         return appointmentRepository.save(appointment);
     }
 

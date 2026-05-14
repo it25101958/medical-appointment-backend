@@ -1,5 +1,9 @@
 package com.medical.appointment.service;
 
+/*
+ * Service layer containing appointment business logic and validation.
+ */
+
 import com.medical.appointment.model.Patient;
 import com.medical.appointment.model.Doctor;
 import com.medical.appointment.model.Room;
@@ -91,6 +95,8 @@ public class AppointmentService {
 
     public Appointment updateAppointment(Integer appointmentId, appointmentUpdateRequest request) {
         Appointment appointment = getAppointmentById(appointmentId);
+
+        // Prevent updates to completed appointments
 
         if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new RuntimeException("Completed appointments cannot be updated");

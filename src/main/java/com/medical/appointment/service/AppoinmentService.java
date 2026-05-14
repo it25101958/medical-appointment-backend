@@ -4,6 +4,8 @@ import com.medical.appointment.model.Patient;
 import com.medical.appointment.model.Doctor;
 import com.medical.appointment.model.Room;
 
+import java.time.LocalDate;
+
 import com.medical.appointment.dto.appoinment.request.appointmentCreateRequest;
 import com.medical.appointment.dto.appoinment.request.appointmentUpdateRequest;
 import com.medical.appointment.dto.appoinment.request.appointmentStatusUpdateRequest;
@@ -53,6 +55,10 @@ public class AppoinmentService {
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);
         appointment.setRoom(room);
+
+        if (request.getAppointmentDate().isBefore(LocalDate.now())) {
+            throw new RuntimeException("Appointment date cannot be in the past");
+        }
 
         return appointmentRepository.save(appointment);
     }

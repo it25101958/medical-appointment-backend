@@ -76,6 +76,16 @@ public class RoomScheduleService {
         return mapToResponse(roomScheduleRepository.save(schedule));
     }
 
+    @Transactional(readOnly = true)
+    public List<RoomScheduleResponse> getDoctorScheduleToday(Integer doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+
+        DayOfWeek today = DayOfWeek.valueOf(LocalDate.now().getDayOfWeek().name());
+        return roomScheduleRepository.findByDoctorAndDayOfWeek(doctor, today)
+                .stream().map(this::mapToResponse).toList();
+    }
+
 
 
 }

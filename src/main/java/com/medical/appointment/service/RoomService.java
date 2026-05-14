@@ -66,6 +66,12 @@ public class RoomService {
                 .map(this::mapToResponse)
                 .toList();
     }
+    @Transactional(readOnly = true)
+    public RoomResponse getRoomById(Integer id) {
+        return roomRepository.findById(id)
+                .map(this::mapToResponse)
+                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+    }
 
 
 

@@ -49,6 +49,23 @@ public class RoomService {
 
         return mapToResponse(roomRepository.save(room));
     }
+    @Transactional
+    public RoomResponse updateRoom(Integer id, RoomRequest request) {
+        securityAccessUtil.validateAdminLevel(AccessLevel.FULL, AccessLevel.SUPER_ADMIN);
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Room not found with id: " + id));
+
+        mapToEntity(request, room);
+        return mapToResponse(roomRepository.save(room));
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoomResponse> getAllRooms() {
+        securityAccessUtil.validateAdminLevel(AccessLevel.FULL,AccessLevel.SUPER_ADMIN);
+        return roomRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
 
 
 

@@ -21,39 +21,39 @@ public class Laboratory {
     @NotNull
     @Size(max = 255)
     @Column(nullable = false)
-    private String name; [cite: 1]
+    private String name;
 
     @NotNull
     @Column(nullable = false)
-    private String address; [cite: 1]
+    private String address;
 
     @NotNull
     @Column(name = "opening_hours", nullable = false)
-    private String openingHours; [cite: 1]
+    private String openingHours;
 
     @NotNull
     @Size(max = 20)
     @Column(nullable = false, length = 20)
-    private String phone; [cite: 1]
+    private String phone;
 
     @NotNull
     @Email
     @Column(nullable = false)
-    private String email; [cite: 1]
+    private String email;
 
     @NotNull
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt; [cite: 1]
+    private LocalDateTime createdAt;
 
     @NotNull
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt; [cite: 1]
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "laboratory", fetch = FetchType.LAZY)
-    private List<LabOrder> labOrders; [cite: 1]
+    private List<LabOrder> labOrders;
 
     @OneToMany(mappedBy = "laboratory", fetch = FetchType.LAZY)
-    private List<LabTest> labTests; [cite: 1]
+    private List<LabTest> labTests;
 
     @PrePersist
     protected void onCreate() {

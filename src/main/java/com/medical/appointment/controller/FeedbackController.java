@@ -1,13 +1,12 @@
 package com.medical.appointment.controller;
 
 import com.medical.appointment.model.Feedback;
-import com.medical.appointment.model.FeedbackStatus;
-import com.medical.appointment.service.FeedbackService;
-import jakarta.validation.Valid;
+import com.medical.appointment.model.enums.FeedbackStatus;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.medical.appointment.repository.FeedbackRepository;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
 @RequestMapping("/api/v1/feedbacks")
 @RequiredArgsConstructor
 public class FeedbackController {
-    private final FeedbackService feedbackService;
+    private final FeedbackRepository feedbackRepository;
 
     @Transactional
     public Feedback createFeedback(Feedback feedback) {

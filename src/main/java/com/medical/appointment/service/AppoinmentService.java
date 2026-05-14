@@ -50,6 +50,10 @@ public class AppoinmentService {
         appointment.setNotes(request.getNotes());
         appointment.setStatus(AppointmentStatus.SCHEDULED);
 
+        appointment.setPatient(patient);
+        appointment.setDoctor(doctor);
+        appointment.setRoom(room);
+
         return appointmentRepository.save(appointment);
     }
 

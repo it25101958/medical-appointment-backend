@@ -86,6 +86,13 @@ public class RoomScheduleService {
                 .stream().map(this::mapToResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public RoomScheduleResponse getByAppointmentId(Integer appointmentId) {
+        return roomScheduleRepository.findByAppointmentAppointmentId(appointmentId)
+                .map(this::mapToResponse)
+                .orElseThrow(() -> new EntityNotFoundException("No schedule for this appointment"));
+    }
+
 
 
 }

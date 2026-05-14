@@ -1,7 +1,7 @@
 package com.medical.appointment.service;
 
 import com.medical.appointment.model.Feedback;
-import com.medical.appointment.model.FeedbackStatus;
+import com.medical.appointment.model.enums.FeedbackStatus;
 import com.medical.appointment.repository.FeedbackRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

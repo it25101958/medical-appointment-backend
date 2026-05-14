@@ -1,5 +1,6 @@
 package com.medical.appointment.model;
 
+import com.medical.appointment.model.enums.MedicationStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -46,9 +47,10 @@ public class Medication {
     @Column(name = "dosage_form", nullable = false)
     private String dosageForm;
 
+    @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(nullable = false)
-    private String status;
+    @Column(name = "status", nullable = false) // Renamed column to just 'status'
+    private MedicationStatus status;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

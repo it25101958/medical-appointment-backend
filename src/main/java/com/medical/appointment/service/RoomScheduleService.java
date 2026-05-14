@@ -39,4 +39,43 @@ public class RoomScheduleService {
                 s.getUpdatedAt()
         );
     }
+
+    @Transactional
+    public RoomScheduleResponse createSchedule(RoomScheduleRequest request) {
+        securityAccessUtil.validateAdminLevel(AccessLevel.FULL, AccessLevel.SUPER_ADMIN);
+
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+        Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+        Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+
+        // Validations
+        if (roomScheduleRepository.findByAppointmentAppointmentId(request.getAppointmentId()).isPresent()) {
+            throw new IllegalStateException("Appointment already has an assigned room.");
+        }
+        if (roomScheduleRepository.isRoomOccupied(room, request.getDayOfWeek(), request.getStartTime(), request.getEndTime())) {
+            throw new IllegalStateException("Room is already occupied at this time.");
+        }
+        if (roomScheduleRepository.isDoctorBusy(doctor, request.getDayOfWeek(), request.getStartTime(), request.getEndTime())) {
+            throw new IllegalStateException("Doctor is already scheduled elsewhere at this time.");
+        }
+
+        RoomSchedule schedule = new RoomSchedule();
+        schedule.setRoom(room);
+        schedule.setDoctor(doctor);
+        schedule.setAppointment(appointment);
+        schedule.setDayOfWeek(request.getDayOfWeek());
+        schedule.setStartTime(request.getStartTime());
+        schedule.setEndTime(request.getEndTime());
+
+        room.setStatus(RoomStatus.OCCUPIED);
+        roomRepository.save(room);
+
+        return mapToResponse(roomScheduleRepository.save(schedule));
+    }
+
+
+
 }

@@ -1,7 +1,7 @@
 package com.medical.appointment.service;
 
 import com.medical.appointment.model.Medication;
-import com.medical.appointment.model.MedicationStatus;
+import com.medical.appointment.model.enums.MedicationStatus;
 import com.medical.appointment.repository.MedicationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class MedicationService {
             throw new IllegalArgumentException(
                     "Medication already exists with name: " + medication.getName());
         }
-        medication.setStatus(String.valueOf(MedicationStatus.ACTIVE));
+        medication.setStatus(MedicationStatus.AVAILABLE);
         return medicationRepository.save(medication);
     }
 
@@ -68,7 +68,10 @@ public class MedicationService {
     @Transactional
     public Medication updateMedication(int medicationId, Medication updated) {
         Medication existing = getMedicationById(medicationId);
-        existing.setName(updated.getName());
+        if (!existing.getName().equalsIgnoreCase(updated.getName()) &&
+                medicationRepository.existsByName(updated.getName())) {
+            throw new IllegalArgumentException("New name already exists: " + updated.getName());
+        }
         existing.setGenericName(updated.getGenericName());
         existing.setManufacturer(updated.getManufacturer());
         existing.setDosage(updated.getDosage());
@@ -79,7 +82,7 @@ public class MedicationService {
     @Transactional
     public Medication updateMedicationStatus(int medicationId, MedicationStatus status) {
         Medication existing = getMedicationById(medicationId);
-        existing.setStatus(String.valueOf(status));
+        existing.setStatus(status);
         return medicationRepository.save(existing);
     }
 

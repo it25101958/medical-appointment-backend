@@ -90,6 +90,10 @@ public class AppoinmentService {
     public Appointment updateAppointment(Integer appointmentId, appointmentUpdateRequest request) {
         Appointment appointment = getAppointmentById(appointmentId);
 
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new RuntimeException("Completed appointments cannot be updated");
+        }
+
         if (request.getAppointmentDate() != null) {
             appointment.setAppointmentDate(request.getAppointmentDate());
         }

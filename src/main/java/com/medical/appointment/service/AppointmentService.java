@@ -26,7 +26,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 
-public class AppoinmentService {
+public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
 

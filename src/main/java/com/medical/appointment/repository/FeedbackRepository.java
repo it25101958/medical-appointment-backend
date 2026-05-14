@@ -1,7 +1,7 @@
 package com.medical.appointment.repository;
 
 import com.medical.appointment.model.Feedback;
-import com.medical.appointment.model.FeedbackStatus;
+import com.medical.appointment.model.enums.FeedbackStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

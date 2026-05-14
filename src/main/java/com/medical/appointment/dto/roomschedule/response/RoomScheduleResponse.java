@@ -1,4 +1,4 @@
-package com.medical.appointment.dto.roomSchedule.response;
+package com.medical.appointment.dto.roomschedule.response;
 
 import com.medical.appointment.model.enums.DayOfWeek;
 import lombok.AllArgsConstructor;

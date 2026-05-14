@@ -1,4 +1,4 @@
-package com.medical.appointment.dto.roomSchedule.request;
+package com.medical.appointment.dto.roomschedule.request;
 
 import com.medical.appointment.model.enums.DayOfWeek;
 import jakarta.validation.constraints.NotNull;

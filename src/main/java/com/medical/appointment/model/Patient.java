@@ -18,11 +18,11 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "patients")
+@Table(name = "patient")
 public class Patient {
 
     @Id
-    private Integer userId;
+    private Integer patientId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "appointments")
+@Table(name = "appointment")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -36,7 +36,7 @@ public class Appointment {
     private Doctor doctor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name = "room_id", referencedColumnName = "roomId", nullable = false)
     private Room room;
 
     @NotNull(message = "Appointment date is required")
@@ -49,7 +49,7 @@ public class Appointment {
 
     @Min(value = 1, message = "Appointment number must be at least 1")
     @Column(name = "appointment_number")
-    private Integer appointmentNumber; // Nullable for cancellations
+    private Integer appointmentNumber;
 
     @NotNull
     @Min(value = 1)

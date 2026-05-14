@@ -13,6 +13,8 @@ import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
+    List<Appointment> findByPatient_PatientId(Integer patientId);
+    List<Appointment> findByDoctor_DoctorId(Integer doctorId);
 
     // Find all appointments for a specific patient
     List<Appointment> findByPatient_Id(Integer patientId);

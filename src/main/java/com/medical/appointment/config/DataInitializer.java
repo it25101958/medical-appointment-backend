@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +22,8 @@ public class DataInitializer implements CommandLineRunner {
     private final StaffRepository staffRepository;
     private final PatientRepository patientRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoomRepository roomRepository;
+    private final AppointmentRepository appointmentRepository;
 
     @Override
     @Transactional
@@ -40,6 +43,20 @@ public class DataInitializer implements CommandLineRunner {
         if (userRepository.findByEmail("patient@hospital.com").isEmpty()) {
             createDefaultPatient();
         }
+
+        Room room = createDefaultRoom();
+
+        Patient patient = patientRepository.findAll().stream()
+                .findFirst()
+                .orElseGet(this::createDefaultPatient);
+
+        Doctor doctor = doctorRepository.findAll().stream()
+                .findFirst()
+                .orElseGet(this::createDefaultDoctor);
+
+        if (appointmentRepository.count() == 0) {
+            createDefaultAppointment(patient, doctor, room);
+        }
     }
 
     private void createSuperAdmin() {
@@ -51,7 +68,7 @@ public class DataInitializer implements CommandLineRunner {
         adminRepository.save(admin);
     }
 
-    private void createDefaultDoctor() {
+    private Doctor createDefaultDoctor() {
         User user = createBaseUser("doctor@hospital.com", "Doctor@123", "Alice", "Smith", UserRole.DOCTOR, "851234567V");
         Doctor doctor = new Doctor();
         doctor.setUser(user);
@@ -60,7 +77,7 @@ public class DataInitializer implements CommandLineRunner {
         doctor.setQualification("MBBS, MD");
         doctor.setExperienceYears(10);
         doctor.setConsultationFee(2500.0);
-        doctorRepository.save(doctor);
+        return doctorRepository.save(doctor);
     }
 
     private void createDefaultStaff() {
@@ -73,13 +90,13 @@ public class DataInitializer implements CommandLineRunner {
         staffRepository.save(staff);
     }
 
-    private void createDefaultPatient() {
+    private Patient createDefaultPatient() {
         User user = createBaseUser("patient@hospital.com", "Patient@123", "John", "Doe", UserRole.PATIENT, "901234567V");
         Patient patient = new Patient();
         patient.setUser(user);
         patient.setBloodGroup(BloodGroup.AB_POSITIVE);
         patient.setEmergencyContact("+94771234567");
-        patientRepository.save(patient);
+        return patientRepository.save(patient);
     }
 
     private User createBaseUser(String email, String password, String fName, String lName, UserRole role, String nic) {
@@ -97,4 +114,34 @@ public class DataInitializer implements CommandLineRunner {
         user.setIsActive(true);
         return userRepository.save(user);
     }
+
+    private Room createDefaultRoom() {
+        return roomRepository.findByRoomNumber("R-101")
+                .orElseGet(() -> {
+                    Room room = new Room();
+                    room.setRoomNumber("R-101");
+                    room.setRoomType("Consultation");
+                    room.setCapacity(1);
+                    room.setStatus(RoomStatus.AVAILABLE);
+                    room.setEquipmentAvailable("Standard Stethoscope, Blood Pressure Monitor");
+                    return roomRepository.save(room);
+                });
+    }
+
+    private void createDefaultAppointment(Patient patient, Doctor doctor, Room room) {
+        Appointment appointment = new Appointment();
+        appointment.setPatient(patient);
+        appointment.setDoctor(doctor);
+        appointment.setRoom(room);
+        appointment.setAppointmentDate(LocalDate.now().plusDays(2));
+        appointment.setAppointmentTime(LocalTime.of(14, 0));
+        appointment.setAppointmentNumber(1);
+        appointment.setDurationMinutes(30);
+        appointment.setStatus(AppointmentStatus.SCHEDULED);
+        appointment.setAppointmentType(AppointmentType.CONSULTATION);
+        appointment.setNotes("Initial cardiology consultation.");
+        appointmentRepository.save(appointment);
+    }
+
+
 }

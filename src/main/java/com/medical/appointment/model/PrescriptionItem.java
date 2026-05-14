@@ -26,13 +26,12 @@ public class PrescriptionItem {
     private Integer prescriptionItemId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "prescription_id", nullable = false)
+    @JoinColumn(name = "prescription_id", referencedColumnName = "prescriptionId", nullable = false)
     private Prescription prescription;
 
-    @NotBlank
-    @Size(max = 100)
-    @Column(nullable = false, length = 100)
-    private String medicationName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "medication_id", nullable = false)
+    private Medication medication;
 
     @NotBlank
     @Size(max = 50)

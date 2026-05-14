@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class Admin {
 
     @Id
-    private Integer userId;
+    private Integer adminId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId

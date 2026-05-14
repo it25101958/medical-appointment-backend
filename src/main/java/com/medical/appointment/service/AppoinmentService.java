@@ -51,7 +51,7 @@ public class AppoinmentService {
         appointment.setDurationMinutes(request.getDurationMinutes());
         appointment.setAppointmentType(request.getAppointmentType());
         appointment.setNotes(request.getNotes());
-        appointment.setStatus(AppointmentStatus.SCHEDULED);
+        appointment.setStatus(AppointmentStatus.PENDING);
 
         appointment.setPatient(patient);
         appointment.setDoctor(doctor);

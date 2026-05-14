@@ -3,7 +3,9 @@ package com.medical.appointment.service;
 import com.medical.appointment.dto.user.request.UserUpdateRequest;
 import com.medical.appointment.dto.user.response.UserResponse;
 import com.medical.appointment.model.User;
+import com.medical.appointment.model.enums.AccessLevel;
 import com.medical.appointment.repository.UserRepository;
+import com.medical.appointment.security.SecurityAccessUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,9 +19,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final SecurityAccessUtil securityAccessUtil;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, SecurityAccessUtil securityAccessUtil) {
         this.userRepository = userRepository;
+        this.securityAccessUtil = securityAccessUtil;
     }
 
     public User saveUser(User user) {
@@ -53,11 +57,11 @@ public class UserService {
     // Update
     public UserResponse updateUser(int id, UserUpdateRequest updateRequest) {
         return userRepository.findById(id).map(user -> {
+            securityAccessUtil.validateModificationAccess(user.getEmail());
             user.setFirstName(updateRequest.getFirstName());
             user.setLastName(updateRequest.getLastName());
             user.setPhone(updateRequest.getPhone());
             user.setAddress(updateRequest.getAddress());
-            checkAuthorization(user.getEmail());
 
             User savedUser = userRepository.save(user);
             return mapToUserResponse(savedUser);
@@ -65,14 +69,11 @@ public class UserService {
     }
 
     // Update role
-
     public UserResponse updateUserRole(int id, int newRoleType) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!hasAnyRole("ROLE_SUPER_ADMIN", "ROLE_FULL")) {
-            throw new AccessDeniedException("Insufficient permissions to modify user roles.");
-        }
+        securityAccessUtil.validateAdminLevel(AccessLevel.SUPER_ADMIN, AccessLevel.FULL);
 
         user.setRoleType(newRoleType);
         return mapToUserResponse(userRepository.save(user));
@@ -81,7 +82,7 @@ public class UserService {
     // Activate user
     public void activateUser(int id){
         User user = userRepository.findById((id)).orElseThrow(() -> new RuntimeException("User not found"));
-        checkAuthorization(user.getEmail());
+        securityAccessUtil.validateAdminLevel(AccessLevel.SUPER_ADMIN, AccessLevel.FULL);
         user.setIsActive(true);
         userRepository.save(user);
     }
@@ -91,8 +92,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        checkAuthorization(user.getEmail());
-
+        securityAccessUtil.validateAdminLevel(AccessLevel.SUPER_ADMIN, AccessLevel.FULL);
         user.setIsActive(false);
         userRepository.save(user);
     }
@@ -113,7 +113,7 @@ public class UserService {
         );
     }
 
-    private boolean hasAnyRole(String... roles) {
+/*    private boolean hasAnyRole(String... roles) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) return false;
 
@@ -141,5 +141,5 @@ public class UserService {
     private boolean isOwner(String targetUserEmail) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         return auth != null && auth.getName().equals(targetUserEmail);
-    }
+    }*/
 }

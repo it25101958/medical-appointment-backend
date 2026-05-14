@@ -29,5 +29,16 @@ public class RoomService {
         room.setEquipmentAvailable(request.getEquipmentAvailable());
     }
 
+    private RoomResponse mapToResponse(Room room) {
+        return new RoomResponse(
+                room.getRoomId(),
+                room.getRoomNumber(),
+                room.getRoomType(),
+                room.getCapacity(),
+                room.getStatus(),
+                room.getEquipmentAvailable()
+        );
+    }
+
 
 }

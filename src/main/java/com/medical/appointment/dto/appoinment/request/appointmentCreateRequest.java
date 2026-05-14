@@ -1,4 +1,4 @@
-package com.medical.appointment.dto.Appoinment.request;
+package com.medical.appointment.dto.appoinment.request;
 
 import com.medical.appointment.model.enums.AppointmentType;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -13,7 +13,7 @@ import java.time.LocalTime;
 
 @Getter
 @Setter
-public class AppointmentCreateRequest {
+public class appointmentCreateRequest {
 
     @NotNull(message = "Patient ID is required")
     private Integer patientId;

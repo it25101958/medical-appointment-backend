@@ -1,4 +1,4 @@
-package com.medical.appointment.dto.Appoinment.request;
+package com.medical.appointment.dto.appoinment.request;
 
 import com.medical.appointment.model.enums.AppointmentStatus;
 import jakarta.validation.constraints.NotNull;
@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AppointmentStatusUpdateRequest {
+public class appointmentStatusUpdateRequest {
 
     @NotNull(message = "Appointment status is required")
     private AppointmentStatus status;

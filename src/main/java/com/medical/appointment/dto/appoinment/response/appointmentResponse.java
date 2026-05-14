@@ -1,4 +1,4 @@
-package com.medical.appointment.dto.Appoinment.response;
+package com.medical.appointment.dto.appoinment.response;
 
 import com.medical.appointment.model.enums.AppointmentStatus;
 import com.medical.appointment.model.enums.AppointmentType;
@@ -11,7 +11,7 @@ import java.time.LocalTime;
 
 @Getter
 @Setter
-public class AppointmentResponse {
+public class appointmentResponse {
 
     private Integer appointmentId;
 

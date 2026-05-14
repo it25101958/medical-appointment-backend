@@ -40,5 +40,16 @@ public class RoomService {
         );
     }
 
+    @Transactional
+    public RoomResponse createRoom(RoomRequest request) {
+        securityAccessUtil.validateAdminLevel(AccessLevel.FULL, AccessLevel.SUPER_ADMIN);
+
+        Room room = new Room();
+        mapToEntity(request, room);
+
+        return mapToResponse(roomRepository.save(room));
+    }
+
+
 
 }

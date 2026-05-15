@@ -56,6 +56,7 @@ public class LabOrderService {
 
         return mapToResponse(labOrderRepository.save(order));
     }
+
     @Transactional(readOnly = true)
     public LabOrderResponse getLabOrderById(Integer id) {
         LabOrder order = labOrderRepository.findById(id)
@@ -94,5 +95,67 @@ public class LabOrderService {
 
         order.getItems().addAll(newItems);
         return mapToResponse(labOrderRepository.save(order));
+    }
+
+    @NonNull
+    private LabOrderItem getLabOrderItem(LabOrder order, LabOrderItemRequest itemDto, LabTest test) {
+        LabOrderItem item = new LabOrderItem();
+        item.setLabOrder(order);
+        item.setLabTest(test);
+        item.setQuantity(itemDto.getQuantity());
+        item.setUnitPrice(test.getStandardPrice());
+        item.calculateTotalPrice();
+        item.setStatus("PENDING");
+        return item;
+    }
+
+    @Transactional
+    public void deleteLabOrder(Integer id) {
+        securityAccessUtil.validateDoctorAccess();
+
+        LabOrder order = labOrderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Lab order not found"));
+        if (order.getItems().stream().anyMatch(i -> !"PENDING".equals(i.getStatus()))) {
+            throw new IllegalStateException("Cannot delete order because it is already being processed by the lab.");
+        }
+
+        labOrderRepository.delete(order);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LabOrderResponse> search(Integer patientId, String status, LocalDate date) {
+        LocalDateTime startOfDay = (date != null) ? date.atStartOfDay() : null;
+        LocalDateTime endOfDay = (date != null) ? date.atTime(LocalTime.MAX) : null;
+
+        return labOrderRepository.searchOrders(patientId, status, startOfDay, endOfDay)
+                .stream()
+                .distinct() // Ensure no duplicates if multiple items match status
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    private LabOrderResponse mapToResponse(LabOrder order) {
+        List<LabOrderItemResponse> itemDtos = order.getItems().stream()
+                .map(item -> LabOrderItemResponse.builder()
+                        .labOrderItemId(item.getLabOrderItemId())
+                        .labTestId(item.getLabTest().getId())
+                        .testName(item.getLabTest().getTestName())
+                        .quantity(item.getQuantity())
+                        .unitPrice(item.getUnitPrice())
+                        .totalPrice(item.getTotalPrice())
+                        .status(item.getStatus())
+                        .createdAt(item.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+
+        Appointment appt = order.getAppointment();
+        return new LabOrderResponse(
+                order.getId(),
+                appt.getAppointmentId(),
+                order.getLaboratory().getName(),
+                appt.getPatient().getUser().getFirstName() + " " + appt.getPatient().getUser().getLastName(),
+                appt.getDoctor().getUser().getFirstName() + " " + appt.getDoctor().getUser().getLastName(),
+                itemDtos
+        );
     }
 }

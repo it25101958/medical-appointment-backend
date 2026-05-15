@@ -15,7 +15,6 @@ public class StaffRegisterRequest extends BaseUserRequest {
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
-
     @NotNull(message = "Staff status is required")
     private StaffStatus status;
 

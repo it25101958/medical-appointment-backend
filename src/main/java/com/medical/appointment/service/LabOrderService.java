@@ -56,4 +56,43 @@ public class LabOrderService {
 
         return mapToResponse(labOrderRepository.save(order));
     }
+    @Transactional(readOnly = true)
+    public LabOrderResponse getLabOrderById(Integer id) {
+        LabOrder order = labOrderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Lab order not found"));
+        securityAccessUtil.validateOwnership(order.getAppointment().getDoctor().getUser().getEmail());
+        return mapToResponse(order);
+    }
+
+    @Transactional
+    public LabOrderResponse updateLabOrder(Integer id, LabOrderRequest request) {
+        securityAccessUtil.validateDoctorAccess();
+
+        LabOrder order = labOrderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Lab order not found"));
+
+        boolean hasStarted = order.getItems().stream()
+                .anyMatch(item -> !"PENDING".equals(item.getStatus()));
+        if (hasStarted) {
+            throw new IllegalStateException("Cannot modify order; some tests are already in progress or completed.");
+        }
+
+        if (!order.getLaboratory().getLaboratoryId().equals(request.getLaboratoryId())) {
+            Laboratory lab = laboratoryRepository.findById(request.getLaboratoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("Laboratory not found"));
+            order.setLaboratory(lab);
+        }
+
+        order.getItems().clear();
+
+        List<LabOrderItem> newItems = request.getItems().stream().map(itemDto -> {
+            LabTest test = labTestRepository.findById(itemDto.getLabTestId())
+                    .orElseThrow(() -> new EntityNotFoundException("Lab Test not found"));
+
+            return getLabOrderItem(order, itemDto, test);
+        }).toList();
+
+        order.getItems().addAll(newItems);
+        return mapToResponse(labOrderRepository.save(order));
+    }
 }

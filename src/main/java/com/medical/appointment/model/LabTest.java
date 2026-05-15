@@ -21,26 +21,26 @@ public class LabTest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull
-    @Size(max = 100)
+    @NotNull(message = "Test name is required")
+    @Size(max = 100, message = "Test name cannot exceed 100 characters")
     @Column(unique = true, length = 100, nullable = false)
     private String testName;
 
-    @NotNull
-    @Size(max = 50)
+    @NotNull(message = "Category is required")
+    @Size(max = 50, message = "Category cannot exceed 50 characters")
     @Column(length = 50, nullable = false)
     private String category;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Description cannot exceed 255 characters")
     @Column(length = 255)
     private String description;
 
-    @NotNull
-    @Digits(integer = 8, fraction = 2)
+    @NotNull(message = "Standard price is required")
+    @Digits(integer = 8, fraction = 2, message = "Standard price must be a valid decimal amount")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal standardPrice;
 
-    @NotNull
+    @NotNull(message = "Active status is required")
     @Column(columnDefinition = "boolean default true")
     private Boolean isActive = true;
 

@@ -70,10 +70,12 @@ public class Appointment {
     @Column(length = 255)
     private String notes;
 
+    // Automatically stores appointment creation timestamp
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // Automatically updates modification timestamp
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;

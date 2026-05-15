@@ -2,7 +2,6 @@ package com.medical.appointment.service;
 
 import com.medical.appointment.model.Medication;
 import com.medical.appointment.model.enums.MedicationStatus;
-import com.medical.appointment.repository.MedicationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

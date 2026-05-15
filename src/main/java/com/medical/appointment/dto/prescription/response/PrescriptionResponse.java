@@ -1,4 +1,4 @@
-package com.medical.appointment.dto.Prescription.response;
+package com.medical.appointment.dto.prescription.response;
 
 import com.medical.appointment.model.enums.PrescriptionStatus;
 import lombok.AllArgsConstructor;
@@ -10,14 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.medical.appointment.dto.prescriptionItem.response.PrescriptionItemResponse;
-import com.medical.appointment.model.enums.PrescriptionStatus;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor

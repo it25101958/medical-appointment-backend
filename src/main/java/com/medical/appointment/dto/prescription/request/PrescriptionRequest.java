@@ -1,4 +1,4 @@
-package com.medical.appointment.dto.Prescription.request;
+package com.medical.appointment.dto.prescription.request;
 
 import com.medical.appointment.model.enums.PrescriptionStatus;
 import jakarta.validation.Valid;
@@ -9,13 +9,6 @@ import lombok.Data;
 import java.util.List;
 
 import com.medical.appointment.dto.prescriptionItem.request.PrescriptionItemRequest;
-import com.medical.appointment.model.enums.PrescriptionStatus;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class PrescriptionRequest {

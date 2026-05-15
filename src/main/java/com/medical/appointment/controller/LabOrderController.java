@@ -29,4 +29,24 @@ public class LabOrderController {
     public ResponseEntity<LabOrderResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(labOrderService.getLabOrderById(id));
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<LabOrderResponse> update(
+            @PathVariable Integer id,
+            @Valid @RequestBody LabOrderRequest request) {
+        return ResponseEntity.ok(labOrderService.updateLabOrder(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        labOrderService.deleteLabOrder(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<LabOrderResponse>> searchOrders(
+            @RequestParam(required = false) Integer patientId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ResponseEntity.ok(labOrderService.search(patientId, status, date));
+    }
 }

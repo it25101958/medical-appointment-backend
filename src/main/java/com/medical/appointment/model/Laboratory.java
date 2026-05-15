@@ -3,6 +3,9 @@ package com.medical.appointment.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,28 +44,15 @@ public class Laboratory {
     @Column(nullable = false)
     private String email;
 
-    @NotNull
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @NotNull
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "laboratory", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "laboratory")
     private List<LabOrder> labOrders;
 
     @OneToMany(mappedBy = "laboratory", fetch = FetchType.LAZY)
     private List<LabTest> labTests;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

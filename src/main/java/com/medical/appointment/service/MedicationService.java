@@ -1,13 +1,17 @@
 package com.medical.appointment.service;
 
+import com.medical.appointment.dto.medication.request.MedicationRequest;
+import com.medical.appointment.dto.medication.response.MedicationResponse;
 import com.medical.appointment.model.Medication;
 import com.medical.appointment.model.enums.MedicationStatus;
+import com.medical.appointment.repository.MedicationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,83 +19,127 @@ public class MedicationService {
 
     private final MedicationRepository medicationRepository;
 
-    //add new medication | create
     @Transactional
-    public Medication createMedication(Medication medication) {
-        if (medicationRepository.existsByName(medication.getName())) {
-            throw new IllegalArgumentException(
-                    "Medication already exists with name: " + medication.getName());
+    public MedicationResponse createMedication(MedicationRequest request) {
+        if (medicationRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("Medication already exists with name: " + request.getName());
         }
-        medication.setStatus(MedicationStatus.AVAILABLE);
-        return medicationRepository.save(medication);
+        Medication medication = new Medication();
+        mapRequestToEntity(request, medication);
+        return mapToResponse(medicationRepository.save(medication));
     }
 
-    // Search medicine | read
-    public Medication getMedicationById(int medicationId) {
-        return medicationRepository.findById(medicationId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Medication not found with id: " + medicationId));
+    @Transactional(readOnly = true)
+    public MedicationResponse getMedicationById(int medicationId) {
+        Medication medication = medicationRepository.findById(medicationId)
+                .orElseThrow(() -> new EntityNotFoundException("Medication not found with id: " + medicationId));
+        return mapToResponse(medication);
     }
 
-    public List<Medication> getAllMedications() {
-        return medicationRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<MedicationResponse> getAllMedications() {
+        return medicationRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
-    public Medication getMedicationByName(String name) {
-        return medicationRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Medication not found with name: " + name));
+    // --- Added Search & Filter Methods ---
+
+    @Transactional(readOnly = true)
+    public MedicationResponse getMedicationByName(String name) {
+        Medication medication = medicationRepository.findByName(name)
+                .orElseThrow(() -> new EntityNotFoundException("Medication not found with name: " + name));
+        return mapToResponse(medication);
     }
 
-    public List<Medication> searchMedication(String name) {
-        return medicationRepository.findByNameContainingIgnoreCase(name);
+    @Transactional(readOnly = true)
+    public List<MedicationResponse> searchMedication(String name) {
+        return medicationRepository.findByNameContainingIgnoreCase(name).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
-    public List<Medication> searchByGenericName(String genericName) {
-        return medicationRepository.findByGenericNameContainingIgnoreCase(genericName);
+    @Transactional(readOnly = true)
+    public List<MedicationResponse> searchByGenericName(String genericName) {
+        return medicationRepository.findByGenericNameContainingIgnoreCase(genericName).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
-    public List<Medication> getMedicationsByStatus(MedicationStatus status) {
-        return medicationRepository.findByStatus(status);
+    @Transactional(readOnly = true)
+    public List<MedicationResponse> getMedicationsByStatus(MedicationStatus status) {
+        return medicationRepository.findByStatus(status).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
-    public List<Medication> getMedicationsByDosageForm(String dosageForm) {
-        return medicationRepository.findByDosageForm(dosageForm);
+    @Transactional(readOnly = true)
+    public List<MedicationResponse> getMedicationsByDosageForm(String form) {
+        return medicationRepository.findByDosageForm(form).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
-    public List<Medication> getMedicationsByManufacturer(String manufacturer) {
-        return medicationRepository.findByManufacturerContainingIgnoreCase(manufacturer);
+    @Transactional(readOnly = true)
+    public List<MedicationResponse> getMedicationsByManufacturer(String name) {
+        return medicationRepository.findByManufacturerContainingIgnoreCase(name).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
-    // update the current medicine | update
+    // --- Update & Status Methods ---
+
     @Transactional
-    public Medication updateMedication(int medicationId, Medication updated) {
-        Medication existing = getMedicationById(medicationId);
-        if (!existing.getName().equalsIgnoreCase(updated.getName()) &&
-                medicationRepository.existsByName(updated.getName())) {
-            throw new IllegalArgumentException("New name already exists: " + updated.getName());
+    public MedicationResponse updateMedication(int medicationId, MedicationRequest request) {
+        Medication existing = medicationRepository.findById(medicationId)
+                .orElseThrow(() -> new EntityNotFoundException("Medication not found with id: " + medicationId));
+
+        if (!existing.getName().equalsIgnoreCase(request.getName()) && medicationRepository.existsByName(request.getName())) {
+            throw new IllegalArgumentException("New name already exists: " + request.getName());
         }
-        existing.setGenericName(updated.getGenericName());
-        existing.setManufacturer(updated.getManufacturer());
-        existing.setDosage(updated.getDosage());
-        existing.setDosageForm(updated.getDosageForm());
-        return medicationRepository.save(existing);
+
+        mapRequestToEntity(request, existing);
+        return mapToResponse(medicationRepository.save(existing));
     }
 
     @Transactional
-    public Medication updateMedicationStatus(int medicationId, MedicationStatus status) {
-        Medication existing = getMedicationById(medicationId);
-        existing.setStatus(status);
-        return medicationRepository.save(existing);
+    public MedicationResponse updateMedicationStatus(int medicationId, MedicationStatus status) {
+        Medication medication = medicationRepository.findById(medicationId)
+                .orElseThrow(() -> new EntityNotFoundException("Medication not found with id: " + medicationId));
+        medication.setStatus(status);
+        return mapToResponse(medicationRepository.save(medication));
     }
 
-    // remove current medication from exiting list | delete
     @Transactional
     public void deleteMedication(int medicationId) {
         if (!medicationRepository.existsById(medicationId)) {
-            throw new EntityNotFoundException(
-                    "Medication not found with id: " + medicationId);
+            throw new EntityNotFoundException("Medication not found with id: " + medicationId);
         }
         medicationRepository.deleteById(medicationId);
+    }
+
+    // --- Mapping Helpers ---
+
+    private MedicationResponse mapToResponse(Medication medication) {
+        return new MedicationResponse(
+                medication.getMedicationId(),
+                medication.getName(),
+                medication.getGenericName(),
+                medication.getManufacturer(),
+                medication.getDosage(),
+                medication.getDosageForm(),
+                medication.getStatus(),
+                medication.getCreatedAt(),
+                medication.getUpdatedAt()
+        );
+    }
+
+    private void mapRequestToEntity(MedicationRequest request, Medication medication) {
+        medication.setName(request.getName());
+        medication.setGenericName(request.getGenericName());
+        medication.setManufacturer(request.getManufacturer());
+        medication.setDosage(request.getDosage());
+        medication.setDosageForm(request.getDosageForm());
+        medication.setStatus(request.getStatus());
     }
 }

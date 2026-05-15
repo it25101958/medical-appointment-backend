@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.List;
 @Entity
 @Getter
 @Setter
@@ -32,6 +33,13 @@ public class Prescription {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
+
+    @OneToMany(
+            mappedBy = "prescription",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<PrescriptionItem> items;
 
     @NotNull(message = "Prescription date is required")
     @Column(nullable = false)

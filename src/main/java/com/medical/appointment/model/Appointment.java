@@ -36,7 +36,7 @@ public class Appointment {
     private Doctor doctor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name = "room_id", referencedColumnName = "roomId", nullable = false)
     private Room room;
 
     @NotNull(message = "Appointment date is required")

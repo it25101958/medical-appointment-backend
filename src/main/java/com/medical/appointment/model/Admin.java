@@ -17,10 +17,10 @@ import java.time.LocalDateTime;
 public class Admin {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer adminId;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

@@ -10,7 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, Integer> {
-    Optional<Staff> findByUserUserId(Integer userId);
     Optional<Staff> findByUserEmail(String email);
     List<Staff> findByStatus(StaffStatus status);
     List<Staff> findBySpecializationContainingIgnoreCase(String specialization);

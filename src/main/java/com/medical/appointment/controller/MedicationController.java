@@ -1,7 +1,7 @@
 package com.medical.appointment.controller;
 
 import com.medical.appointment.model.Medication;
-import com.medical.appointment.model.MedicationStatus;
+import com.medical.appointment.model.enums.MedicationStatus;
 import com.medical.appointment.service.MedicationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

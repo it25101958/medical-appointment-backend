@@ -20,8 +20,7 @@ public class LabOrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "lab_order_item_id")
-    private Integer id;
-
+    private Integer labOrderItemId;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

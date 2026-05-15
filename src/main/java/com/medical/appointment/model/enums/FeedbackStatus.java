@@ -1,4 +1,4 @@
-package com.medical.appointment.model;
+package com.medical.appointment.model.enums;
 
 public enum FeedbackStatus {
     PENDING,    // submitted but not yet reviewed

@@ -1,9 +1,9 @@
 package com.medical.appointment.model;
 
+import com.medical.appointment.model.enums.FeedbackStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
+
 
 @Entity
 @Data
@@ -27,27 +28,16 @@ public class Feedback {
     private int feedbackId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "appointment_id",
-            referencedColumnName = "appointmentId",
-            nullable = false
+    @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId", nullable = false
     )
     private Appointment appointment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "patient_id",
-            referencedColumnName = "patientId",
-            nullable = false
-    )
+    @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "doctor_id",
-            referencedColumnName = "doctorId",
-            nullable = false
-    )
+    @JoinColumn( name = "doctor_id", nullable = false)
     private Doctor doctor;
 
     @NotNull
@@ -72,6 +62,5 @@ public class Feedback {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
 }
 

@@ -22,7 +22,7 @@ public class Prescription {
     private Integer prescriptionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id", nullable = false)
+    @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId", nullable = false)
     private Appointment appointment;
 
     @ManyToOne(fetch = FetchType.LAZY)

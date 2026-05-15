@@ -29,14 +29,17 @@ public class Appointment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
+    @NotNull(message = "Patient selection is required")
     private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
+    @NotNull(message = "Doctor selection is required")
     private Doctor doctor;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", referencedColumnName = "roomId", nullable = false)
+    @NotNull(message = "Room assignment is required")
     private Room room;
 
     @NotNull(message = "Appointment date is required")
@@ -51,22 +54,22 @@ public class Appointment {
     @Column(name = "appointment_number")
     private Integer appointmentNumber;
 
-    @NotNull
-    @Min(value = 1)
+    @NotNull(message = "Duration is required")
+    @Min(value = 1, message = "Duration must be at least 1 minute")
     @Column(nullable = false)
     private Integer durationMinutes;
 
-    @NotNull
+    @NotNull(message = "Status cannot be null")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private AppointmentStatus status;
 
-    @NotNull
+    @NotNull(message = "Appointment type is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private AppointmentType appointmentType;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Notes cannot exceed 255 characters")
     @Column(length = 255)
     private String notes;
 

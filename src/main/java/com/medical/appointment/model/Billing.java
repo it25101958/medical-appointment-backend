@@ -28,39 +28,41 @@ public class Billing {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId", nullable = false)
+    @NotNull(message = "Appointment reference is required")
     private Appointment appointment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
+    @NotNull(message = "Patient reference is required")
     private Patient patient;
 
-    @NotNull
-    @DecimalMin("0.0")
+    @NotNull(message = "Total amount is required")
+    @DecimalMin(value = "0.0", message = "Total amount cannot be negative")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    @DecimalMin("0.0")
+    @DecimalMin(value = "0.0", message = "Discount cannot be negative")
     @Column(precision = 10, scale = 2)
     private BigDecimal discount;
 
-    @DecimalMin("0.0")
+    @DecimalMin(value = "0.0", message = "Tax cannot be negative")
     @Column(precision = 10, scale = 2)
     private BigDecimal tax;
 
-    @NotNull
-    @DecimalMin("0.0")
+    @NotNull(message = "Final amount is required")
+    @DecimalMin(value = "0.0", message = "Final amount cannot be negative")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal finalAmount;
 
-    @NotNull
+    @NotNull(message = "Billing date is required")
     @Column(nullable = false)
     private LocalDate billingDate;
 
-    @NotNull
+    @NotNull(message = "Due date is required")
     @Column(nullable = false)
     private LocalDate dueDate;
 
-    @NotNull
+    @NotNull(message = "Billing status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private BillingStatus status;

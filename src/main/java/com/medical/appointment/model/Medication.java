@@ -24,31 +24,31 @@ public class Medication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer medicationId;
 
-    @NotNull
-    @Size(max = 255)
+    @NotNull(message = "Medication name is required")
+    @Size(max = 255, message = "Medication name cannot exceed 255 characters")
     @Column(nullable = false, length = 255)
     private String name;
 
-    @NotNull
-    @Size(max = 255)
+    @NotNull(message = "Generic name is required")
+    @Size(max = 255, message = "Generic name cannot exceed 255 characters")
     @Column(name = "generic_name", nullable = false, length = 255)
     private String genericName;
 
-    @NotNull
-    @Size(max = 255)
+    @NotNull(message = "Manufacturer is required")
+    @Size(max = 255, message = "Manufacturer name cannot exceed 255 characters")
     @Column(nullable = false, length = 255)
     private String manufacturer;
 
-    @NotNull
+    @NotNull(message = "Dosage information is required")
     @Column(nullable = false)
     private String dosage;
 
-    @NotNull
+    @NotNull(message = "Dosage form is required")
     @Column(name = "dosage_form", nullable = false)
     private String dosageForm;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
+    @NotNull(message = "Medication status is required")
     @Column(name = "status", nullable = false) // Renamed column to just 'status'
     private MedicationStatus status;
 

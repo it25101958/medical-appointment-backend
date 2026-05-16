@@ -45,12 +45,12 @@ public class Prescription {
     @Column(nullable = false)
     private LocalDate prescriptionDate;
 
-    @NotNull
+    @NotNull(message = "Prescription status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private PrescriptionStatus status;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Notes cannot exceed 255 characters")
     @Column(length = 255)
     private String notes;
 

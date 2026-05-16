@@ -24,40 +24,40 @@ public class RoomSchedule {
     @Column(name = "room_schedule_id")
     private Integer roomScheduleId;
 
-    @NotNull
+    @NotNull(message = "Doctor assignment is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id")
     private Doctor doctor;
 
-    @NotNull
+    @NotNull(message = "Room assignment is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", referencedColumnName = "roomId")
     private Room room;
 
-    @NotNull
+    @NotNull(message = "Appointment reference is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId")
     private Appointment appointment;
 
-    @NotNull
+    @NotNull(message = "Day of the week is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "day_of_week")
     private DayOfWeek dayOfWeek;
 
-    @NotNull
+    @NotNull(message = "Start time is required")
     @Column(name = "start_time")
     private LocalTime startTime;
 
-    @NotNull
+    @NotNull(message = "End time is required")
     @Column(name = "end_time")
     private LocalTime endTime;
 
-    @NotNull
+    @NotNull(message = "Creation timestamp is required")
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @NotNull
+    @NotNull(message = "Update timestamp is required")
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

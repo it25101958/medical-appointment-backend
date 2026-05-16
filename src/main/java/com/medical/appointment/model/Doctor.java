@@ -37,6 +37,7 @@ public class Doctor {
     private String licenseNumber;
 
     @Column(nullable = false, length = 100)
+    @NotBlank(message = "Qualification is required")
     private String qualification;
 
     @Min(value = 0, message = "Experience years cannot be negative")

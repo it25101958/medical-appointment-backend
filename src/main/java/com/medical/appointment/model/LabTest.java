@@ -47,6 +47,10 @@ public class LabTest {
     @OneToMany(mappedBy = "labTest", fetch = FetchType.LAZY)
     private List<LabOrderItem> labOrderItems;
 
+    @ManyToOne
+    @JoinColumn(name = "laboratory_id")
+    private Laboratory laboratory;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

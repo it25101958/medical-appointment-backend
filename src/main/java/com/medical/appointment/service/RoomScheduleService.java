@@ -23,7 +23,6 @@ public class RoomScheduleService {
     private final RoomScheduleRepository roomScheduleRepository;
     private final RoomRepository roomRepository;
     private final DoctorRepository doctorRepository;
-    private final AppointmentRepository appointmentRepository;
     private final SecurityAccessUtil securityAccessUtil;
 
     private RoomScheduleResponse mapToResponse(RoomSchedule s) {
@@ -31,7 +30,7 @@ public class RoomScheduleService {
                 s.getRoomScheduleId(),
                 s.getRoom().getRoomNumber(),
                 "Dr. " + s.getDoctor().getUser().getLastName(),
-                s.getAppointment().getAppointmentNumber(),
+                1,
                 s.getDayOfWeek(),
                 s.getStartTime(),
                 s.getEndTime(),
@@ -48,28 +47,21 @@ public class RoomScheduleService {
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
                 .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
-        Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
-                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
 
-        // Validations
-        if (roomScheduleRepository.findByAppointmentAppointmentId(request.getAppointmentId()).isPresent()) {
-            throw new IllegalStateException("Appointment already has an assigned room.");
-        }
+        // FIXED VALIDATIONS: Ensure no other doctor has claimed this block, and this doctor isn't split between rooms
         if (roomScheduleRepository.isRoomOccupied(room, request.getDayOfWeek(), request.getStartTime(), request.getEndTime())) {
-            throw new IllegalStateException("Room is already occupied at this time.");
+            throw new IllegalStateException("This room is already allocated to another doctor's shift during this time block.");
         }
         if (roomScheduleRepository.isDoctorBusy(doctor, request.getDayOfWeek(), request.getStartTime(), request.getEndTime())) {
-            throw new IllegalStateException("Doctor is already scheduled elsewhere at this time.");
+            throw new IllegalStateException("This doctor is already scheduled to work in a different room during this time slot.");
         }
 
         RoomSchedule schedule = new RoomSchedule();
         schedule.setRoom(room);
         schedule.setDoctor(doctor);
-        schedule.setAppointment(appointment);
         schedule.setDayOfWeek(request.getDayOfWeek());
         schedule.setStartTime(request.getStartTime());
         schedule.setEndTime(request.getEndTime());
-
         room.setStatus(RoomStatus.OCCUPIED);
         roomRepository.save(room);
 
@@ -90,9 +82,17 @@ public class RoomScheduleService {
     public RoomScheduleResponse getByAppointmentId(Integer appointmentId) {
         return roomScheduleRepository.findByAppointmentAppointmentId(appointmentId)
                 .map(this::mapToResponse)
-                .orElseThrow(() -> new EntityNotFoundException("No schedule for this appointment"));
+                .orElseThrow(() -> new EntityNotFoundException("No shift schedule matches this target appointment ID context"));
     }
 
+    @Transactional(readOnly = true)
+    public List<RoomScheduleResponse> getAllDoctorSchedules(Integer doctorId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found with ID: " + doctorId));
 
-
+        return roomScheduleRepository.findByDoctor(doctor)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
 }

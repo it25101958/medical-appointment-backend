@@ -22,9 +22,11 @@ public class DoctorRegisterRequest extends BaseUserRequest {
     @NotBlank(message = "Qualification is required")
     private String qualification;
 
-    @Min(0)
+    @NotNull(message = "Experience years is required")
+    @Min(value = 0, message = "Experience years cannot be negative")
     private Integer experienceYears;
 
-    @Positive
+    @NotNull(message = "Consultation fee is required")
+    @Positive(message = "Consultation fee must be greater than zero")
     private Double consultationFee;
 }

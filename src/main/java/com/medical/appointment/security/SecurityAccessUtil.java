@@ -3,6 +3,7 @@ package com.medical.appointment.security;
 import com.medical.appointment.model.enums.AccessLevel;
 import com.medical.appointment.model.enums.StaffStatus;
 import com.medical.appointment.repository.AdminRepository;
+import com.medical.appointment.repository.DoctorRepository;
 import com.medical.appointment.repository.StaffRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,6 +19,7 @@ public class SecurityAccessUtil {
 
     private final AdminRepository adminRepository;
     private final StaffRepository staffRepository;
+    private final DoctorRepository doctorRepository;
 
     public void validateModificationAccess(String targetUserEmail) {
         if (hasAnyRole("ROLE_READ_ONLY")) {
@@ -52,6 +54,18 @@ public class SecurityAccessUtil {
                         throw new AccessDeniedException("Access Denied: Your status is " + staff.getStatus().getLabel());
                     }
                 }, () -> { throw new AccessDeniedException("Access Denied: Staff record not found."); });
+    }
+
+    public void validateDoctorAccess() {
+        if (!hasAnyRole("ROLE_DOCTOR")) {
+            throw new AccessDeniedException("Access Denied: Only doctors are permitted to perform this action.");
+        }
+    }
+
+    public void validateOwnership(String resourceOwnerEmail) {
+        if (!isOwner(resourceOwnerEmail) && !hasAnyRole("ROLE_SUPER_ADMIN")) {
+            throw new AccessDeniedException("Access Denied: You do not own this record.");
+        }
     }
 
     public boolean isOwner(String targetUserEmail) {

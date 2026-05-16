@@ -7,14 +7,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
+@Getter
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class StaffRegisterRequest extends BaseUserRequest {
     @NotBlank(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
-
 
     @NotNull(message = "Staff status is required")
     private StaffStatus status;

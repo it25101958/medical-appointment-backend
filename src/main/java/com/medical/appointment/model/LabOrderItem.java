@@ -22,29 +22,30 @@ public class LabOrderItem {
     @Column(name = "lab_order_item_id")
     private Integer labOrderItemId;
 
-    @NotNull
+    @NotNull(message = "Lab order reference is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lab_order_id", nullable = false)
     private LabOrder labOrder;
 
-    @NotNull
+    @NotNull(message = "Lab test selection is required")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_id", nullable = false)
     private LabTest labTest;
 
-    @NotNull
+    @NotNull(message = "Quantity is required")
+    @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
 
-    @NotNull
+    @NotNull(message = "Unit price is required")
     @Column(name = "unit_price", precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    @NotNull
+    @NotNull(message = "Total price is required")
     @Column(name = "total_price", precision = 10, scale = 2)
     private BigDecimal totalPrice;
 
-    @NotNull
-    @Size(max = 20)
+    @NotNull(message = "Status is required")
+    @Size(max = 20, message = "Status cannot exceed 20 characters")
     @Column(length = 20)
     private String status;
 

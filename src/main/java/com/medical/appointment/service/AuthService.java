@@ -1,11 +1,16 @@
 package com.medical.appointment.service;
 
 import com.medical.appointment.dto.admin.request.CreateAdminRequest;
+import com.medical.appointment.dto.admin.response.AdminResponse;
 import com.medical.appointment.dto.auth.request.*;
 import com.medical.appointment.dto.auth.response.AuthResponse;
 import com.medical.appointment.dto.doctor.request.DoctorRegisterRequest;
+import com.medical.appointment.dto.doctor.response.DoctorResponse;
 import com.medical.appointment.dto.patient.request.PatientRegisterRequest;
+import com.medical.appointment.dto.patient.response.PatientResponse;
 import com.medical.appointment.dto.staff.request.StaffRegisterRequest;
+import com.medical.appointment.dto.staff.response.StaffResponse;
+import com.medical.appointment.dto.user.response.UserResponse;
 import com.medical.appointment.exception.*;
 import com.medical.appointment.model.*;
 import com.medical.appointment.model.enums.AccessLevel;
@@ -66,12 +71,10 @@ public class AuthService {
     }
 
     @Transactional
-    public User registerPatient(PatientRegisterRequest request) {
+    public PatientResponse registerPatient(PatientRegisterRequest request) {
         validateUniqueness(request.getEmail(), request.getNIC());
 
         User user = prepareNewUser(request, UserRole.PATIENT);
-        user.setRoleType(UserRole.PATIENT.getValue());
-
         String rawPassword = generateRandomPassword(8);
         user.setPassword(passwordEncoder.encode(rawPassword));
 
@@ -83,18 +86,17 @@ public class AuthService {
         patient.setEmergencyContact(request.getEmergencyContact());
         patient.setBloodGroup(request.getBloodGroup());
         patient.setAllergies(request.getAllergies());
-        patientRepository.save(patient);
+        Patient savedPatient = patientRepository.save(patient);
 
-        return savedUser;
+        return mapToPatientResponse(savedPatient);
     }
 
     @Transactional
-    public User registerDoctor(DoctorRegisterRequest request) {
+    public DoctorResponse registerDoctor(DoctorRegisterRequest request) {
         getAuthenticatedAdmin();
         validateUniqueness(request.getEmail(), request.getNIC());
 
         User user = prepareNewUser(request, UserRole.DOCTOR);
-        user.setRoleType(UserRole.DOCTOR.getValue());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         User savedUser = userRepository.save(user);
 
@@ -107,13 +109,13 @@ public class AuthService {
         doctor.setQualification(request.getQualification());
         doctor.setExperienceYears(request.getExperienceYears());
         doctor.setConsultationFee(request.getConsultationFee());
-        doctorRepository.save(doctor);
+        Doctor savedDoctor = doctorRepository.save(doctor);
 
-        return savedUser;
+        return mapToDoctorResponse(savedDoctor);
     }
 
     @Transactional
-    public User registerStaff(StaffRegisterRequest request) {
+    public StaffResponse registerStaff(StaffRegisterRequest request) {
         getAuthenticatedAdmin();
         validateUniqueness(request.getEmail(), request.getNIC());
 
@@ -129,13 +131,13 @@ public class AuthService {
         staff.setStatus(request.getStatus());
         staff.setWorkingHours(request.getWorkingHours());
         staff.setSpecialization(request.getSpecialization());
-        staffRepository.save(staff);
+        Staff savedStaff = staffRepository.save(staff);
 
-        return savedUser;
+        return mapToStaffResponse(savedStaff);
     }
 
     @Transactional
-    public User registerAdmin(CreateAdminRequest request) {
+    public AdminResponse registerAdmin(CreateAdminRequest request) {
         Admin loggedInAdmin = getAuthenticatedAdmin();
         if (loggedInAdmin.getAccessLevel() != AccessLevel.SUPER_ADMIN) {
             throw new AccessDeniedException("Only Super Admins can create new Admin accounts.");
@@ -144,7 +146,6 @@ public class AuthService {
         validateUniqueness(request.getEmail(), request.getNIC());
 
         User user = prepareNewUser(request, UserRole.ADMIN);
-        user.setRoleType(UserRole.ADMIN.getValue());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         User savedUser = userRepository.save(user);
 
@@ -154,9 +155,9 @@ public class AuthService {
         admin.setUser(savedUser);
         admin.setDepartment(request.getDepartment());
         admin.setAccessLevel(request.getAccessLevel());
-        adminRepository.save(admin);
+        Admin savedAdmin = adminRepository.save(admin);
 
-        return savedUser;
+        return mapToAdminResponse(savedAdmin);
     }
 
     @Transactional
@@ -184,14 +185,12 @@ public class AuthService {
     }
 
     private User prepareNewUser(BaseUserRequest request, UserRole role) {
-        User user = mapBaseUserFields(request);
+        User user = mapRequestToEntity(request);
         user.setRoleType(role.getValue());
         user.setIsActive(false);
-
         String otp = String.format("%06d", new Random().nextInt(999999));
         user.setVerificationCode(otp);
         user.setCodeExpiry(LocalDateTime.now().plusMinutes(5));
-
         return user;
     }
 
@@ -217,7 +216,62 @@ public class AuthService {
                 .orElseThrow(() -> new AccessDeniedException("Current user does not have an Admin profile."));
     }
 
-    private User mapBaseUserFields(BaseUserRequest request) {
+    private AdminResponse mapToAdminResponse(Admin admin) {
+        AdminResponse response = new AdminResponse();
+        mapBaseUserToResponse(admin.getUser(), response);
+        response.setAdminId(admin.getAdminId());
+        response.setDepartment(admin.getDepartment());
+        response.setAccessLevel(admin.getAccessLevel());
+        return response;
+    }
+
+    private StaffResponse mapToStaffResponse(Staff staff) {
+        StaffResponse response = new StaffResponse();
+        mapBaseUserToResponse(staff.getUser(), response);
+        response.setStaffId(staff.getStaffId());
+        response.setStatus(staff.getStatus());
+        response.setWorkingHours(staff.getWorkingHours());
+        response.setSpecialization(staff.getSpecialization());
+
+        return response;
+    }
+
+    private PatientResponse mapToPatientResponse(Patient patient) {
+        PatientResponse response = new PatientResponse();
+        mapBaseUserToResponse(patient.getUser(), response);
+        response.setPatientId(patient.getPatientId());
+        response.setEmergencyContact(patient.getEmergencyContact());
+        response.setBloodGroup(patient.getBloodGroup());
+        response.setAllergies(patient.getAllergies());
+        return response;
+    }
+
+    private DoctorResponse mapToDoctorResponse(Doctor doctor) {
+        DoctorResponse response = new DoctorResponse();
+        mapBaseUserToResponse(doctor.getUser(), response);
+        response.setSpecialization(doctor.getSpecialization());
+        response.setLicenseNumber(doctor.getLicenseNumber());
+        response.setQualification(doctor.getQualification());
+        response.setExperienceYears(doctor.getExperienceYears());
+        response.setConsultationFee(doctor.getConsultationFee());
+        return response;
+    }
+
+    private void mapBaseUserToResponse(User user, UserResponse response) {
+        response.setUserId(user.getUserId());
+        response.setEmail(user.getEmail());
+        response.setFirstName(user.getFirstName());
+        response.setLastName(user.getLastName());
+        response.setPhone(user.getPhone());
+        response.setNIC(user.getNIC());
+        response.setAddress(user.getAddress());
+        response.setIsActive(user.getIsActive());
+        response.setRoleType(user.getRoleType());
+        response.setCreatedAt(user.getCreatedAt());
+        response.setUpdatedAt(user.getUpdatedAt());
+    }
+
+    private User mapRequestToEntity(BaseUserRequest request) {
         User user = new User();
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());
@@ -227,7 +281,7 @@ public class AuthService {
         user.setDateOfBirth(request.getDateOfBirth());
         user.setGender(request.getGender());
         user.setAddress(request.getAddress());
-        user.setIsActive(true);
         return user;
     }
+
 }

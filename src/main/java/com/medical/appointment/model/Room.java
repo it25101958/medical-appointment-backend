@@ -21,27 +21,27 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer roomId;
 
-    @NotBlank
-    @Size(max = 10)
+    @NotBlank(message = "Room number is required")
+    @Size(max = 10, message = "Room number cannot exceed 10 characters")
     @Column(nullable = false, unique = true, length = 10)
     private String roomNumber;
 
-    @NotBlank
-    @Size(max = 20)
+    @NotBlank(message = "Room type is required")
+    @Size(max = 20, message = "Room type cannot exceed 20 characters")
     @Column(nullable = false, length = 20)
     private String roomType;
 
-    @NotNull
-    @Min(1)
+    @NotNull(message = "Capacity is required")
+    @Min(value = 1, message = "Capacity must be at least 1")
     @Column(nullable = false)
     private Integer capacity;
 
-    @NotNull
+    @NotNull(message = "Room status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private RoomStatus status;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Equipment description cannot exceed 255 characters")
     @Column(length = 255)
     private String equipmentAvailable;
 

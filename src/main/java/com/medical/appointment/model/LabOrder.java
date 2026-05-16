@@ -2,7 +2,10 @@ package com.medical.appointment.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -29,6 +32,11 @@ public class LabOrder {
     @JoinColumn(name = "laboratory_id")
     private Laboratory laboratory;
 
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
 }

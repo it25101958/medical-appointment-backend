@@ -16,16 +16,11 @@ public class JwtTokenUtil {
     private final SecretKey secretKey;
     private final long validity;
 
-    public JwtTokenUtil(
-            @Value("${jwt.secret}") String secretString,
-            @Value("${jwt.expiration-ms}") long validity
-    ) {
-        if (secretString == null || secretString.length() < 32) {
-            throw new IllegalArgumentException("JWT secret must be at least 32 characters long.");
-        }
+    public JwtTokenUtil() {
+        String secretString = "dev-only-secret-key-change-this-before-production-123456789";
 
         this.secretKey = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
-        this.validity = validity;
+        this.validity = 10600000L; // Added 'L' to specify long literal
     }
 
     public String generateToken(String username, String role, String accessLevel) {

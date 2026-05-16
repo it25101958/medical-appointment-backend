@@ -29,6 +29,25 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
 
+    public List<Payment> getPaymentsByPatient(Integer patientId) {
+        return paymentRepository.findByPatient_PatientId(patientId);
+    }
+
+
+    public List<Payment> getPaymentsByAppointment(Integer appointmentId) {
+        return paymentRepository.findByAppointment_AppointmentId(appointmentId);
+    }
+
+
+    public List<Payment> getPaymentsByStatus(Integer paymentStatus) {
+        return paymentRepository.findByPaymentStatus(paymentStatus);
+    }
+
+
+    public Payment getPaymentByTransactionId(String transactionId) {
+        return paymentRepository.findByTransactionId(transactionId);
+    }
+
     public Payment updatePayment(Integer id, Payment updatedPayment) {
         return paymentRepository.findById(id).map(existing -> {
             existing.setAmount(updatedPayment.getAmount());

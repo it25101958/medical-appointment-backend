@@ -23,37 +23,37 @@ public class AppointmentController {
     // Create a new appointment (Returns 201 Created status code)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AppointmentResponse createAppointment(
-            @Valid @RequestBody AppointmentCreateRequest request
+    public appointmentResponse createAppointment(
+            @Valid @RequestBody appointmentCreateRequest request
     ) {
         return appointmentService.createAppointment(request);
     }
 
     // Get all appointments (Admins/Staff see all, Doctors see only their own)
     @GetMapping
-    public List<AppointmentResponse> getAllAppointments() {
+    public List<appointmentResponse> getAllAppointments() {
         return appointmentService.getAllAppointments();
     }
 
     // Get appointment details by ID
     @GetMapping("/{id}")
-    public AppointmentResponse getAppointmentById(@PathVariable Integer id) {
+    public appointmentResponse getAppointmentById(@PathVariable Integer id) {
         return appointmentService.getAppointmentById(id);
     }
 
     @PutMapping("/{id}")
-    public AppointmentResponse updateAppointment(
+    public appointmentResponse updateAppointment(
             @PathVariable Integer id,
-            @Valid @RequestBody AppointmentUpdateRequest request
+            @Valid @RequestBody appointmentUpdateRequest request
     ) {
         return appointmentService.updateAppointment(id, request);
     }
 
     // Update appointment status (Restricted to Admin and Staff)
     @PatchMapping("/{id}/status")
-    public AppointmentResponse updateAppointmentStatus(
+    public appointmentResponse updateAppointmentStatus(
             @PathVariable Integer id,
-            @Valid @RequestBody AppointmentStatusUpdateRequest request
+            @Valid @RequestBody appointmentStatusUpdateRequest request
     ) {
         return appointmentService.updateAppointmentStatus(id, request);
     }

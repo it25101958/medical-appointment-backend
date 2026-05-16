@@ -1,12 +1,16 @@
 package com.medical.appointment.controller;
 
 import com.medical.appointment.dto.admin.request.CreateAdminRequest;
+import com.medical.appointment.dto.admin.response.AdminResponse;
 import com.medical.appointment.dto.auth.request.LoginRequest;
 import com.medical.appointment.dto.auth.request.VerificationRequest;
 import com.medical.appointment.dto.auth.response.AuthResponse;
 import com.medical.appointment.dto.doctor.request.DoctorRegisterRequest;
+import com.medical.appointment.dto.doctor.response.DoctorResponse;
 import com.medical.appointment.dto.patient.request.PatientRegisterRequest;
+import com.medical.appointment.dto.patient.response.PatientResponse;
 import com.medical.appointment.dto.staff.request.StaffRegisterRequest;
+import com.medical.appointment.dto.staff.response.StaffResponse;
 import com.medical.appointment.model.User;
 import com.medical.appointment.service.AuthService;
 import jakarta.validation.Valid;
@@ -14,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.print.Doc;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -30,27 +36,27 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerPatient(@Valid @RequestBody PatientRegisterRequest request) {
-        User savedUser = authService.registerPatient(request);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    public ResponseEntity<PatientResponse> registerPatient(@Valid @RequestBody PatientRegisterRequest request) {
+        PatientResponse response = authService.registerPatient(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/register/doctor")
-    public ResponseEntity<User> registerDoctor(@Valid @RequestBody DoctorRegisterRequest request) {
-        User savedUser = authService.registerDoctor(request);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    public ResponseEntity<DoctorResponse> registerDoctor(@Valid @RequestBody DoctorRegisterRequest request) {
+        DoctorResponse response = authService.registerDoctor(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/register/staff")
-    public ResponseEntity<User> registerStaff(@Valid @RequestBody StaffRegisterRequest request) {
-        User savedUser = authService.registerStaff(request);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    public ResponseEntity<StaffResponse> registerStaff(@Valid @RequestBody StaffRegisterRequest request) {
+        StaffResponse response = authService.registerStaff(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/register/admin")
-    public ResponseEntity<User> registerAdmin(@Valid @RequestBody CreateAdminRequest request) {
-        User savedUser = authService.registerAdmin(request);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    public ResponseEntity<AdminResponse> registerAdmin(@Valid @RequestBody CreateAdminRequest request) {
+        AdminResponse response = authService.registerAdmin(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/verify")

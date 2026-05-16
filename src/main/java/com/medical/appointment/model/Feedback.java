@@ -28,29 +28,31 @@ public class Feedback {
     private int feedbackId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId", nullable = false
-    )
+    @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId", nullable = false)
+    @NotNull(message = "Appointment reference is required")
     private Appointment appointment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
+    @NotNull(message = "Patient reference is required")
     private Patient patient;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn( name = "doctor_id", nullable = false)
+    @NotNull(message = "Doctor reference is required")
     private Doctor doctor;
 
-    @NotNull
-    @Min(1)
-    @Max(5)
+    @NotNull(message = "Rating is required")
+    @Min(value = 1, message = "Rating must be at least 1")
+    @Max(value = 5, message = "Rating cannot exceed 5")
     @Column(nullable = false)
     private int rating;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Comments cannot exceed 255 characters")
     @Column(length = 255)
     private String comments;
 
-    @NotNull
+    @NotNull(message = "Feedback status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private FeedbackStatus status;

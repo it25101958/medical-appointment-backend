@@ -8,7 +8,10 @@ import java.util.List;
 
 @Repository
 public interface LabOrderItemRepository extends JpaRepository<LabOrderItem, Integer> {
+    boolean existsByLabTestId(Integer testId);
+    List<LabOrderItem> findByLabOrderId(Integer labOrderId);
     List<LabOrderItem> findByLabOrderItemId(Integer labOrderItemId);
     List<LabOrderItem> findByStatus(String status);
     List<LabOrderItem> findByLabTestId(Integer testId);
+    List<LabOrderItem> findByLabOrderLaboratoryLaboratoryId(Integer laboratoryId);
 }

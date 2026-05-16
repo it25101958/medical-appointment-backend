@@ -44,6 +44,39 @@ public class DataInitializer implements CommandLineRunner {
             createDefaultPatient();
         }
 
+        // Additional
+
+        if (userRepository.findByEmail("admin_hr@hospital.com").isEmpty()) {
+            createAdditionalAdmin("admin_hr@hospital.com", "HR", AccessLevel.FULL);
+        }
+        if (userRepository.findByEmail("admin_finance@hospital.com").isEmpty()) {
+            createAdditionalAdmin("admin_finance@hospital.com", "Finance", AccessLevel.FULL);
+        }
+
+        // Additional Doctors
+        if (userRepository.findByEmail("neurologist@hospital.com").isEmpty()) {
+            createAdditionalDoctor("neurologist@hospital.com", "Jane", "Doe", Specialization.NEUROLOGY, "SLMC-99999");
+        }
+        if (userRepository.findByEmail("pediatrician@hospital.com").isEmpty()) {
+            createAdditionalDoctor("pediatrician@hospital.com", "Mark", "Wilson", Specialization.PEDIATRICS, "SLMC-88888");
+        }
+
+        // Additional Staff
+        if (userRepository.findByEmail("nurse@hospital.com").isEmpty()) {
+            createAdditionalStaff("nurse@hospital.com", "Sarah", "Connor", StaffStatus.ACTIVE, "NURSING");
+        }
+        if (userRepository.findByEmail("labtech@hospital.com").isEmpty()) {
+            createAdditionalStaff("labtech@hospital.com", "Mike", "Ross", StaffStatus.ON_LEAVE, "LABORATORY");
+        }
+
+        // Additional Patients
+        if (userRepository.findByEmail("patient2@hospital.com").isEmpty()) {
+            createAdditionalPatient("patient2@hospital.com", "Emily", "Clark", BloodGroup.O_POSITIVE, "921234567V");
+        }
+        if (userRepository.findByEmail("patient3@hospital.com").isEmpty()) {
+            createAdditionalPatient("patient3@hospital.com", "David", "Miller", BloodGroup.A_NEGATIVE, "881234567V");
+        }
+
         Room room = createDefaultRoom();
 
         Patient patient = patientRepository.findAll().stream()
@@ -141,6 +174,52 @@ public class DataInitializer implements CommandLineRunner {
         appointment.setAppointmentType(AppointmentType.CONSULTATION);
         appointment.setNotes("Initial cardiology consultation.");
         appointmentRepository.save(appointment);
+    }
+
+    private void createAdditionalAdmin(String email, String dept, AccessLevel level) {
+        User user = createBaseUser(email, "Admin@123", "Admin", dept, UserRole.ADMIN, generateFakeNic());
+        Admin admin = new Admin();
+        admin.setUser(user);
+        admin.setDepartment(dept);
+        admin.setAccessLevel(level);
+        adminRepository.save(admin);
+    }
+
+    private void createAdditionalDoctor(String email, String fName, String lName, Specialization spec, String license) {
+        User user = createBaseUser(email, "Doctor@123", fName, lName, UserRole.DOCTOR, generateFakeNic());
+        Doctor doctor = new Doctor();
+        doctor.setUser(user);
+        doctor.setSpecialization(spec);
+        doctor.setLicenseNumber(license);
+        doctor.setQualification("MBBS, MS");
+        doctor.setExperienceYears(8);
+        doctor.setConsultationFee(3000.0);
+        doctorRepository.save(doctor);
+    }
+
+    private void createAdditionalStaff(String email, String fName, String lName, StaffStatus status, String spec) {
+        User user = createBaseUser(email, "Staff@123", fName, lName, UserRole.STAFF, generateFakeNic());
+        Staff staff = new Staff();
+        staff.setUser(user);
+        staff.setStatus(status);
+        staff.setWorkingHours("14:00 - 22:00");
+        staff.setSpecialization(spec);
+        staffRepository.save(staff);
+    }
+
+    private void createAdditionalPatient(String email, String fName, String lName, BloodGroup bg, String nic) {
+        User user = createBaseUser(email, "Patient@123", fName, lName, UserRole.PATIENT, nic);
+        Patient patient = new Patient();
+        patient.setUser(user);
+        patient.setBloodGroup(bg);
+        patient.setEmergencyContact("+94779876543");
+        patient.setAllergies("None");
+        patientRepository.save(patient);
+    }
+
+    private String generateFakeNic() {
+        long number = 100_000_000L + (long) (Math.random() * 900_000_000L);
+        return number + "V";
     }
 
 

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.util.List;
 @Entity
 @Getter
 @Setter
@@ -33,16 +34,23 @@ public class Prescription {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
+    @OneToMany(
+            mappedBy = "prescription",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<PrescriptionItem> items;
+
     @NotNull(message = "Prescription date is required")
     @Column(nullable = false)
     private LocalDate prescriptionDate;
 
-    @NotNull
+    @NotNull(message = "Prescription status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private PrescriptionStatus status;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Notes cannot exceed 255 characters")
     @Column(length = 255)
     private String notes;
 

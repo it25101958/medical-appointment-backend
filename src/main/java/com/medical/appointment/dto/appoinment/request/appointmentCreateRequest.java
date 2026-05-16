@@ -34,10 +34,6 @@ public class appointmentCreateRequest {
     @NotNull(message = "Appointment time is required")
     private LocalTime appointmentTime;
 
-    @NotNull(message = "Duration is required")
-    @Min(value = 1, message = "Duration must be at least 1 minute")
-    private Integer durationMinutes;
-
     @NotNull(message = "Appointment type is required")
     private AppointmentType appointmentType;
 

@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -47,8 +48,8 @@ public class Laboratory {
     @OneToMany(mappedBy = "laboratory")
     private List<LabOrder> labOrders;
 
-    @OneToMany(mappedBy = "laboratory", fetch = FetchType.LAZY)
-    private List<LabTest> labTests;
+    @OneToMany(mappedBy = "laboratory", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LabTest> labTests = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime createdAt;

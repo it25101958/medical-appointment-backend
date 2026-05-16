@@ -14,7 +14,6 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-
     public Payment createPayment(Payment payment) {
         return paymentRepository.save(payment);
     }

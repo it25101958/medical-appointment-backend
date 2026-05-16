@@ -1,8 +1,8 @@
 package com.medical.appointment.repository;
 
+import com.medical.appointment.model.RoomSchedule;
 import com.medical.appointment.model.Doctor;
 import com.medical.appointment.model.Room;
-import com.medical.appointment.model.RoomSchedule;
 import com.medical.appointment.model.enums.DayOfWeek;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,18 +16,45 @@ import java.util.Optional;
 @Repository
 public interface RoomScheduleRepository extends JpaRepository<RoomSchedule, Integer> {
 
-    Optional<RoomSchedule> findByAppointmentAppointmentId(Integer appointmentId);
+    // 1. Automatic Shift Finder (Clean parameters, no JPQL math)
+    @Query("SELECT rs FROM RoomSchedule rs WHERE rs.doctor = :doctor " +
+            "AND rs.dayOfWeek = :dayOfWeek " +
+            "AND rs.startTime <= :startTime " +
+            "AND rs.endTime >= :endTime")
+    Optional<RoomSchedule> findDoctorActiveShift(
+            @Param("doctor") Doctor doctor,
+            @Param("dayOfWeek") DayOfWeek dayOfWeek,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime
+    );
 
-    // Overlap Logic: (NewStart < ExistingEnd) AND (NewEnd > ExistingStart)
+    // 2. Clear out manual math symbols in validation queries to prevent Hibernate crash
     @Query("SELECT COUNT(rs) > 0 FROM RoomSchedule rs WHERE rs.room = :room " +
-            "AND rs.dayOfWeek = :day AND (:start < rs.endTime AND :end > rs.startTime)")
-    boolean isRoomOccupied(@Param("room") Room room, @Param("day") DayOfWeek day,
-                           @Param("start") LocalTime start, @Param("end") LocalTime end);
+            "AND rs.dayOfWeek = :dayOfWeek " +
+            "AND (:startTime < rs.endTime AND :endTime > rs.startTime)")
+    boolean isRoomOccupied(
+            @Param("room") Room room,
+            @Param("dayOfWeek") DayOfWeek dayOfWeek,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime
+    );
 
     @Query("SELECT COUNT(rs) > 0 FROM RoomSchedule rs WHERE rs.doctor = :doctor " +
-            "AND rs.dayOfWeek = :day AND (:start < rs.endTime AND :end > rs.startTime)")
-    boolean isDoctorBusy(@Param("doctor") Doctor doctor, @Param("day") DayOfWeek day,
-                         @Param("start") LocalTime start, @Param("end") LocalTime end);
+            "AND rs.dayOfWeek = :dayOfWeek " +
+            "AND (:startTime < rs.endTime AND :endTime > rs.startTime)")
+    boolean isDoctorBusy(
+            @Param("doctor") Doctor doctor,
+            @Param("dayOfWeek") DayOfWeek dayOfWeek,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime
+    );
 
     List<RoomSchedule> findByDoctorAndDayOfWeek(Doctor doctor, DayOfWeek dayOfWeek);
+
+    @Query("SELECT rs FROM RoomSchedule rs, Appointment a WHERE a.room = rs.room " +
+            "AND a.doctor = rs.doctor " +
+            "AND a.appointmentId = :appointmentId")
+    Optional<RoomSchedule> findByAppointmentAppointmentId(@Param("appointmentId") Integer appointmentId);
+
+    List<RoomSchedule> findByDoctor(Doctor doctor);
 }

@@ -3,9 +3,13 @@ package com.medical.appointment.dto.roomschedule.request;
 import com.medical.appointment.model.enums.DayOfWeek;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalTime;
 
+@Getter
+@Setter
 @Data
 public class RoomScheduleRequest {
 
@@ -14,9 +18,6 @@ public class RoomScheduleRequest {
 
     @NotNull(message = "Room ID is required")
     private Integer roomId;
-
-    @NotNull(message = "Appointment ID is required")
-    private Integer appointmentId;
 
     @NotNull(message = "Day of week is required")
     private DayOfWeek dayOfWeek;

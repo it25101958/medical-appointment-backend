@@ -8,13 +8,21 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import com.medical.appointment.util.PasswordPolicy;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Getter
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class StaffRegisterRequest extends BaseUserRequest {
     @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
+    @Size(min = 8, max = 72, message = "Password must be between 8 and 72 characters")
+    @Pattern(
+            regexp = PasswordPolicy.STRONG_PASSWORD_PATTERN,
+            message = PasswordPolicy.STRONG_PASSWORD_MESSAGE
+    )
     private String password;
 
     @NotNull(message = "Staff status is required")

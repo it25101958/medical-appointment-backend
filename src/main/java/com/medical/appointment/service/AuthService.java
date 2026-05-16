@@ -24,7 +24,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.medical.appointment.dto.user.response.UserSummaryResponse;
+import com.medical.appointment.dto.auth.request.ForgotPasswordRequest;
+import com.medical.appointment.dto.auth.request.ResetPasswordRequest;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Random;
 
@@ -43,10 +47,14 @@ public class AuthService {
     private final JwtTokenUtil jwtTokenUtil;
     private final EmailService emailService;
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final int VERIFICATION_CODE_EXPIRY_MINUTES = 5;
+    private static final int PASSWORD_RESET_CODE_EXPIRY_MINUTES = 10;
+
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("Invalid email or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("Invalid email or password");
@@ -56,27 +64,38 @@ public class AuthService {
             throw new AccessDeniedException("Account is deactivated. Please contact support.");
         }
 
-        String roleClaim;
+        String roleClaim = UserRole.fromInt(user.getRoleType()).name();
+        String accessLevel = null;
+
         if (user.getRoleType() == UserRole.ADMIN.getValue()) {
             Admin admin = adminRepository.findById(user.getUserId())
                     .orElseThrow(() -> new AccessDeniedException("Admin profile missing"));
-            roleClaim = admin.getAccessLevel().name();
-        } else {
 
-            roleClaim = UserRole.fromInt(user.getRoleType()).name();
+            roleClaim = UserRole.ADMIN.name();
+            accessLevel = admin.getAccessLevel().name();
         }
 
-        String token = jwtTokenUtil.generateToken(user.getEmail(), roleClaim);
-        return new AuthResponse(token, user);
-    }
+        String token = jwtTokenUtil.generateToken(user.getEmail(), roleClaim, accessLevel);
 
+        UserSummaryResponse userSummary = new UserSummaryResponse(
+                user.getUserId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getRoleType(),
+                UserRole.fromInt(user.getRoleType()).name(),
+                accessLevel,
+                user.getIsActive()
+        );
+
+        return new AuthResponse(token, userSummary);
+    }
     @Transactional
     public PatientResponse registerPatient(PatientRegisterRequest request) {
         validateUniqueness(request.getEmail(), request.getNIC());
 
         User user = prepareNewUser(request, UserRole.PATIENT);
-        String rawPassword = generateRandomPassword(8);
-        user.setPassword(passwordEncoder.encode(rawPassword));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         User savedUser = userRepository.save(user);
         emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getVerificationCode());
@@ -86,8 +105,8 @@ public class AuthService {
         patient.setEmergencyContact(request.getEmergencyContact());
         patient.setBloodGroup(request.getBloodGroup());
         patient.setAllergies(request.getAllergies());
-        Patient savedPatient = patientRepository.save(patient);
 
+        Patient savedPatient = patientRepository.save(patient);
         return mapToPatientResponse(savedPatient);
     }
 
@@ -169,9 +188,8 @@ public class AuthService {
             throw new IllegalStateException("Account is already verified.");
         }
 
-        if (user.getCodeExpiry().isBefore(LocalDateTime.now())) {
-            userRepository.delete(user);
-            throw new VerificationException("Verification code has expired. Your registration has been reset. Please register again.");
+        if (user.getCodeExpiry() == null || user.getCodeExpiry().isBefore(LocalDateTime.now())) {
+            throw new VerificationException("Verification code has expired. Please request a new verification code.");
         }
 
         if (!user.getVerificationCode().equals(request.getCode())) {
@@ -181,6 +199,79 @@ public class AuthService {
         user.setIsActive(true);
         user.setVerificationCode(null);
         user.setCodeExpiry(null);
+
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void resendVerificationCode(ResendVerificationRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + request.getEmail()));
+
+        if (user.getIsActive()) {
+            throw new IllegalStateException("Account is already verified.");
+        }
+
+        user.setVerificationCode(generateVerificationCode());
+        user.setCodeExpiry(LocalDateTime.now().plusMinutes(VERIFICATION_CODE_EXPIRY_MINUTES));
+
+        userRepository.save(user);
+
+        emailService.sendVerificationEmail(user.getEmail(), user.getVerificationCode());
+    }
+
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElse(null);
+
+        /*
+         * Do not reveal whether the email exists or not.
+         * This helps prevent email enumeration attacks.
+         */
+        if (user == null || !user.getIsActive()) {
+            return;
+        }
+
+        user.setPasswordResetCode(generateVerificationCode());
+        user.setPasswordResetExpiry(
+                LocalDateTime.now().plusMinutes(PASSWORD_RESET_CODE_EXPIRY_MINUTES)
+        );
+
+        userRepository.save(user);
+
+        emailService.sendPasswordResetEmail(user.getEmail(), user.getPasswordResetCode());
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid reset request."));
+
+        if (!user.getIsActive()) {
+            throw new AccessDeniedException("Account is not active. Please verify your account first.");
+        }
+
+        if (user.getPasswordResetCode() == null || user.getPasswordResetExpiry() == null) {
+            throw new InvalidCredentialsException("Invalid or expired reset code.");
+        }
+
+        if (user.getPasswordResetExpiry().isBefore(LocalDateTime.now())) {
+            user.setPasswordResetCode(null);
+            user.setPasswordResetExpiry(null);
+            userRepository.save(user);
+
+            throw new VerificationException("Password reset code has expired. Please request a new one.");
+        }
+
+        if (!user.getPasswordResetCode().equals(request.getCode())) {
+            throw new InvalidCredentialsException("Invalid or expired reset code.");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPasswordResetCode(null);
+        user.setPasswordResetExpiry(null);
+
         userRepository.save(user);
     }
 
@@ -188,9 +279,10 @@ public class AuthService {
         User user = mapRequestToEntity(request);
         user.setRoleType(role.getValue());
         user.setIsActive(false);
-        String otp = String.format("%06d", new Random().nextInt(999999));
-        user.setVerificationCode(otp);
-        user.setCodeExpiry(LocalDateTime.now().plusMinutes(5));
+
+        user.setVerificationCode(generateVerificationCode());
+        user.setCodeExpiry(LocalDateTime.now().plusMinutes(VERIFICATION_CODE_EXPIRY_MINUTES));
+
         return user;
     }
 
@@ -282,6 +374,10 @@ public class AuthService {
         user.setGender(request.getGender());
         user.setAddress(request.getAddress());
         return user;
+    }
+
+    private String generateVerificationCode() {
+        return String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
     }
 
 }

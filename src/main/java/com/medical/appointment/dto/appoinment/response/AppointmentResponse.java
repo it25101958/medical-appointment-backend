@@ -11,7 +11,7 @@ import java.time.LocalTime;
 
 @Getter
 @Setter
-public class appointmentResponse {
+public class AppointmentResponse {
 
     private Integer appointmentId;
 
@@ -24,6 +24,8 @@ public class appointmentResponse {
     private LocalDate appointmentDate;
 
     private LocalTime appointmentTime;
+
+    private Integer appointmentNumber;
 
     private Integer durationMinutes;
 

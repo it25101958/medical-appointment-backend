@@ -2,16 +2,17 @@ package com.medical.appointment.controller;
 
 import com.medical.appointment.dto.user.request.UserUpdateRequest;
 import com.medical.appointment.dto.user.response.UserResponse;
-import com.medical.appointment.model.User;
 import com.medical.appointment.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -19,27 +20,38 @@ public class UserController {
 
     private final UserService userService;
 
-    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMyProfile() {
+        return ResponseEntity.ok(userService.getMyProfile());
+    }
 
     @GetMapping("/email/{email}")
     public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
-        Optional<UserResponse> user = userService.getUserByEmail(email);
-        return user.map(ResponseEntity::ok)
+        return userService.getUserByEmail(email)
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    @GetMapping
+    public Page<UserResponse> getAllUsers(
+            @PageableDefault(size = 5, sort = "userId", direction = Sort.Direction.ASC)
+            Pageable pageable
+    ) {
+        return userService.getAllUsers(pageable);
+    }
+
     @GetMapping("/active")
-    public List<UserResponse> getActiveUsers() {
-        return userService.getActiveUsers();
+    public ResponseEntity<List<UserResponse>> getActiveUsers() {
+        return ResponseEntity.ok(userService.getActiveUsers());
     }
 
     @GetMapping("/role/{roleType}")
-    public List<UserResponse> getUsersByRole(@PathVariable int roleType) {
-        return userService.getUsersByRole(roleType);
+    public ResponseEntity<List<UserResponse>> getUsersByRole(@PathVariable int roleType) {
+        return ResponseEntity.ok(userService.getUsersByRole(roleType));
     }
 
     @GetMapping("/{id}")
@@ -49,7 +61,6 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // update user
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable int id,
@@ -59,7 +70,7 @@ public class UserController {
     }
 
     @PatchMapping("/activate/{id}")
-    public ResponseEntity<Void> activateUser(@PathVariable int id){
+    public ResponseEntity<Void> activateUser(@PathVariable int id) {
         userService.activateUser(id);
         return ResponseEntity.noContent().build();
     }
@@ -73,9 +84,8 @@ public class UserController {
     @PatchMapping("/role/{id}")
     public ResponseEntity<UserResponse> updateUserRole(
             @PathVariable int id,
-            @RequestParam int newRoleType) {
-
+            @RequestParam int newRoleType
+    ) {
         return ResponseEntity.ok(userService.updateUserRole(id, newRoleType));
     }
-
 }

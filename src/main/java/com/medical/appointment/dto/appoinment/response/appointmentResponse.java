@@ -25,6 +25,8 @@ public class appointmentResponse {
 
     private LocalTime appointmentTime;
 
+    private Integer appointmentNumber;
+
     private Integer durationMinutes;
 
     private AppointmentStatus status;

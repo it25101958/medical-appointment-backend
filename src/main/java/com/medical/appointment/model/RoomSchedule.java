@@ -34,11 +34,6 @@ public class RoomSchedule {
     @JoinColumn(name = "room_id", referencedColumnName = "roomId")
     private Room room;
 
-    @NotNull(message = "Appointment reference is required")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId")
-    private Appointment appointment;
-
     @NotNull(message = "Day of the week is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "day_of_week")
@@ -52,12 +47,10 @@ public class RoomSchedule {
     @Column(name = "end_time")
     private LocalTime endTime;
 
-    @NotNull(message = "Creation timestamp is required")
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @NotNull(message = "Update timestamp is required")
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

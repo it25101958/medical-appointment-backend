@@ -79,6 +79,14 @@ public class User {
     @FutureOrPresent(message = "Expiry time cannot be in the past")
     private LocalDateTime codeExpiry;
 
+    @Column(length = 6)
+    @Size(min = 6, max = 6, message = "Reset code must be exactly 6 digits")
+    private String passwordResetCode;
+
+    @Column
+    @FutureOrPresent(message = "Reset code expiry time cannot be in the past")
+    private LocalDateTime passwordResetExpiry;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

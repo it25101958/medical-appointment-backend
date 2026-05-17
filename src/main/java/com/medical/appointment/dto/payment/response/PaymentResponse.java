@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-
 public class PaymentResponse {
 
     private Integer paymentId;

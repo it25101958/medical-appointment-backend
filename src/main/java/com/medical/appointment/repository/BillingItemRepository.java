@@ -9,7 +9,6 @@ import java.util.List;
 @Repository
 public interface BillingItemRepository extends JpaRepository<BillingItem, Integer> {
 
-
     List<BillingItem> findByBilling_BillingId(Integer billingId);
 
 }

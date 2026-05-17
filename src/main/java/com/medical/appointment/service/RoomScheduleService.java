@@ -95,4 +95,50 @@ public class RoomScheduleService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
+    @Transactional
+    public RoomScheduleResponse updateSchedule(Integer scheduleId, RoomScheduleRequest request) {
+        securityAccessUtil.validateAdminLevel(AccessLevel.FULL, AccessLevel.SUPER_ADMIN);
+
+        RoomSchedule schedule = roomScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new EntityNotFoundException("Schedule not found"));
+
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+        Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+
+        // Check conflicts
+        if (roomScheduleRepository.isRoomOccupied(room, request.getDayOfWeek(), request.getStartTime(), request.getEndTime())) {
+            throw new IllegalStateException("This room is already allocated for this time block.");
+        }
+        if (roomScheduleRepository.isDoctorBusy(doctor, request.getDayOfWeek(), request.getStartTime(), request.getEndTime())) {
+            throw new IllegalStateException("Doctor is busy in another room at this time.");
+        }
+
+        schedule.setRoom(room);
+        schedule.setDoctor(doctor);
+        schedule.setDayOfWeek(request.getDayOfWeek());
+        schedule.setStartTime(request.getStartTime());
+        schedule.setEndTime(request.getEndTime());
+
+        return mapToResponse(roomScheduleRepository.save(schedule));
+    }
+
+    /** DELETE */
+    @Transactional
+    public void deleteSchedule(Integer scheduleId) {
+        securityAccessUtil.validateAdminLevel(AccessLevel.FULL, AccessLevel.SUPER_ADMIN);
+
+        RoomSchedule schedule = roomScheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new EntityNotFoundException("Schedule not found"));
+
+        // Optional: free up room
+        Room room = schedule.getRoom();
+        room.setStatus(RoomStatus.AVAILABLE);
+        roomRepository.save(room);
+
+        roomScheduleRepository.delete(schedule);
+    }
+
 }

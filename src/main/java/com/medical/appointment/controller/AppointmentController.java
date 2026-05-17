@@ -42,6 +42,16 @@ public class AppointmentController {
         return appointmentService.getAppointmentById(id);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<AppointmentResponse>> getMyAppointments() {
+        return ResponseEntity.ok(appointmentService.getMyAppointments());
+    }
+
+    @GetMapping("/my/today")
+    public List<AppointmentResponse> getMyTodayAppointments() {
+        return appointmentService.getMyTodayAppointments();
+    }
+
     @PutMapping("/{id}")
     public AppointmentResponse updateAppointment(
             @PathVariable Integer id,
@@ -67,6 +77,13 @@ public class AppointmentController {
             @Valid @RequestBody AppointmentStatusUpdateRequest request
     ) {
         return appointmentService.updateAppointmentStatus(id, request);
+    }
+
+    @GetMapping("/doctor/{doctorId}/today")
+    public List<AppointmentResponse> getTodayAppointmentsByDoctor(
+            @PathVariable Integer doctorId
+    ) {
+        return appointmentService.getTodayAppointmentsByDoctor(doctorId);
     }
 
     // Cancel appointment (Restricted to Admin and Staff, returns 240 No Content status)

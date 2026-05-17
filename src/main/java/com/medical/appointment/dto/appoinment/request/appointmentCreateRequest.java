@@ -24,9 +24,6 @@ public class appointmentCreateRequest {
     @NotNull(message = "Doctor ID is required")
     private Integer doctorId;
 
-    @NotNull(message = "Room ID is required")
-    private Integer roomId;
-
     @NotNull(message = "Appointment date is required")
     @FutureOrPresent(message = "Appointment date cannot be in the past")
     private LocalDate appointmentDate;

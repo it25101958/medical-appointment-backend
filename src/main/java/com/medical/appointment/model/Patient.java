@@ -29,15 +29,13 @@ public class Patient {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotBlank(message = "Emergency contact is required")
     @Size(max = 15, message = "Emergency contact cannot exceed 15 characters")
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number format")
-    @Column(nullable = false, length = 15)
+    @Column(nullable = true, length = 15)
     private String emergencyContact;
 
-    @NotNull(message = "Blood group is required")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = true, length = 20)
     private BloodGroup bloodGroup;
 
     @Column(columnDefinition = "TEXT")

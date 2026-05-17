@@ -1,6 +1,6 @@
 package com.medical.appointment.model;
 
-
+import com.medical.appointment.model.enums.BillingItemType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,4 +20,12 @@ public class BillingItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer billingItemId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "billing_id", nullable = false)
+    private Billing billing;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "item_type", nullable = false, length = 50)
+    private BillingItemType itemType;
 }

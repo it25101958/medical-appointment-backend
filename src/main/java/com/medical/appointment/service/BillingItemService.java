@@ -23,36 +23,25 @@ public class BillingItemService {
     private final BillingItemRepository billingItemRepository;
     private final BillingRepository billingRepository;
 
-
     @Transactional
     public BillingItemResponse createBillingItem(BillingItemRequest request) {
         Billing billing = billingRepository.findById(request.getBillingId())
-                .orElseThrow(() -> new RuntimeException(
-                        "Billing not found with id: " + request.getBillingId()));
-
-
+                .orElseThrow(() -> new RuntimeException("Billing not found with id: " + request.getBillingId()));
         BillingItem item = createBillingItemByType(request.getItemType());
         item.setBilling(billing);
         item.setItemType(request.getItemType());
         item.setDescription(request.getDescription());
         item.setQuantity(request.getQuantity());
         item.setUnitPrice(request.getUnitPrice());
-
-
         item.setTotalPrice(item.calculateTotalPrice());
-
         return convertToResponse(billingItemRepository.save(item));
     }
 
-
     @Transactional(readOnly = true)
     public BillingItemResponse getBillingItemById(Integer id) {
-        return billingItemRepository.findById(id)
-                .map(this::convertToResponse)
-                .orElseThrow(() -> new RuntimeException(
-                        "BillingItem not found with id: " + id));
+        return billingItemRepository.findById(id).map(this::convertToResponse)
+                .orElseThrow(() -> new RuntimeException("BillingItem not found with id: " + id));
     }
-
 
     @Transactional(readOnly = true)
     public List<BillingItemResponse> getAllBillingItems() {
@@ -60,6 +49,33 @@ public class BillingItemService {
                 .map(this::convertToResponse).collect(Collectors.toList());
     }
 
+
+    @Transactional(readOnly = true)
+    public List<BillingItemResponse> getBillingItemsByBillingId(Integer billingId) {
+        return billingItemRepository.findByBilling_BillingId(billingId).stream()
+                .map(this::convertToResponse).collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    public BillingItemResponse updateBillingItem(Integer id, BillingItemRequest request) {
+        BillingItem existing = billingItemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("BillingItem not found with id: " + id));
+        existing.setDescription(request.getDescription());
+        existing.setQuantity(request.getQuantity());
+        existing.setUnitPrice(request.getUnitPrice());
+        existing.setItemType(request.getItemType());
+        existing.setTotalPrice(existing.calculateTotalPrice());
+        return convertToResponse(billingItemRepository.save(existing));
+    }
+
+
+    @Transactional
+    public void deleteBillingItem(Integer id) {
+        if (!billingItemRepository.existsById(id))
+            throw new RuntimeException("Cannot delete: BillingItem not found with id: " + id);
+        billingItemRepository.deleteById(id);
+    }
 
     private BillingItem createBillingItemByType(BillingItemType type) {
         return switch (type) {

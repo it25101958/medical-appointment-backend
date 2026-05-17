@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "item_category", discriminatorType = DiscriminatorType.STRING)
+
 public class BillingItem {
 
     @Id

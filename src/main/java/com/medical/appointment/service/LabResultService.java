@@ -46,4 +46,20 @@ public class LabResultService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public LabResultResponse updateLabResult(Long id, LabResultRequest request) {
+        LabResult labResult = labResultRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Lab result not found with id: " + id));
+
+        labResult.setResultValue(request.getResultValue());
+        labResult.setReferenceRange(request.getReferenceRange());
+        labResult.setStatus(request.getStatus());
+        labResult.setRemarks(request.getRemarks());
+        if (request.getTestDate() != null) {
+            labResult.setTestDate(request.getTestDate());
+        }
+
+        return mapToResponse(labResultRepository.save(labResult));
+    }
+
 }

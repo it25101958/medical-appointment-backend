@@ -1,83 +1,90 @@
 package com.medical.appointment.controller;
 
-import com.medical.appointment.model.Payment;
+import com.medical.appointment.dto.payment.request.PaymentRequest;
+import com.medical.appointment.dto.payment.response.PaymentResponse;
 import com.medical.appointment.service.PaymentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/payment")
+@RequiredArgsConstructor
 public class PaymentController {
 
-    @Autowired
-    private PaymentService paymentService;
+    private final PaymentService paymentService;
 
 
     @PostMapping
-    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
-        return ResponseEntity.ok(paymentService.createPayment(payment));
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'PATIENT')")
+    public ResponseEntity<PaymentResponse> createPayment(
+            @Valid @RequestBody PaymentRequest request) {
+        return ResponseEntity.ok(paymentService.createPayment(request));
     }
+
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
-    public ResponseEntity<List<Payment>> getAllPayments() {
+    public ResponseEntity<List<PaymentResponse>> getAllPayments() {
         return ResponseEntity.ok(paymentService.getAllPayments());
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Payment> getPaymentById(@PathVariable Integer id) {
-        return paymentService.getPaymentById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'PATIENT')")
+    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Integer id) {
+        return ResponseEntity.ok(paymentService.getPaymentById(id));
     }
 
 
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<Payment>> getPaymentsByPatient(
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'PATIENT')")
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByPatient(
             @PathVariable Integer patientId) {
         return ResponseEntity.ok(paymentService.getPaymentsByPatient(patientId));
     }
 
 
     @GetMapping("/appointment/{appointmentId}")
-    public ResponseEntity<List<Payment>> getPaymentsByAppointment(
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'PATIENT')")
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByAppointment(
             @PathVariable Integer appointmentId) {
         return ResponseEntity.ok(paymentService.getPaymentsByAppointment(appointmentId));
     }
 
 
     @GetMapping("/status/{paymentStatus}")
-    public ResponseEntity<List<Payment>> getPaymentsByStatus(
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<List<PaymentResponse>> getPaymentsByStatus(
             @PathVariable Integer paymentStatus) {
         return ResponseEntity.ok(paymentService.getPaymentsByStatus(paymentStatus));
     }
 
 
     @GetMapping("/transaction/{transactionId}")
-    public ResponseEntity<Payment> getPaymentByTransactionId(
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<PaymentResponse> getPaymentByTransactionId(
             @PathVariable String transactionId) {
-        Payment payment = paymentService.getPaymentByTransactionId(transactionId);
-        if (payment != null) {
-            return ResponseEntity.ok(payment);
-        }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(
+                paymentService.getPaymentByTransactionId(transactionId));
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Payment> updatePayment(
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<PaymentResponse> updatePayment(
             @PathVariable Integer id,
-            @RequestBody Payment payment) {
-        return ResponseEntity.ok(paymentService.updatePayment(id, payment));
+            @Valid @RequestBody PaymentRequest request) {
+        return ResponseEntity.ok(paymentService.updatePayment(id, request));
     }
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Void> deletePayment(@PathVariable Integer id) {
         paymentService.deletePayment(id);
         return ResponseEntity.noContent().build();

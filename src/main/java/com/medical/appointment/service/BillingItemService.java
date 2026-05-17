@@ -49,7 +49,6 @@ public class BillingItemService {
                 .map(this::convertToResponse).collect(Collectors.toList());
     }
 
-
     @Transactional(readOnly = true)
     public List<BillingItemResponse> getBillingItemsByBillingId(Integer billingId) {
         return billingItemRepository.findByBilling_BillingId(billingId).stream()

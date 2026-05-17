@@ -39,5 +39,11 @@ public class LabResultService {
                 .orElseThrow(() -> new EntityNotFoundException("Lab result not found with id: " + id));
         return mapToResponse(labResult);
     }
+    @Transactional(readOnly = true)
+    public List<LabResultResponse> getLabResultsByPatientId(Long patientId) {
+        return labResultRepository.findByPatientId(patientId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
 
 }

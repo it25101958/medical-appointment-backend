@@ -20,11 +20,7 @@ public class PatientRegisterRequest extends BaseUserRequest {
             message = PasswordPolicy.STRONG_PASSWORD_MESSAGE
     )
     private String password;
-    @NotBlank(message = "Emergency contact is required")
     private String emergencyContact;
-
-    @NotNull(message = "Blood group is required")
     private BloodGroup bloodGroup;
-
     private String allergies;
 }

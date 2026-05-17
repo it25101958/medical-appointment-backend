@@ -26,7 +26,7 @@ public class LabResultService {
         response.setTestName(labResult.getTestName());
         response.setResultValue(labResult.getResultValue());
         response.setReferenceRange(labResult.getReferenceRange());
-        response.setStatus(labResult.setStatus());
+        response.setStatus(labResult.getStatus());
         response.setRemarks(labResult.getRemarks());
         response.setCreatedAt(labResult.getCreatedAt());
         response.setUpdatedAt(labResult.getUpdatedAt());

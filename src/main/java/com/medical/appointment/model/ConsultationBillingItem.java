@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-
 @Entity
 @DiscriminatorValue("CONSULTATION")
 @Getter

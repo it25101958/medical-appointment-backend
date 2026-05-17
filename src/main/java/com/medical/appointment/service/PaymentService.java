@@ -32,17 +32,17 @@ public class PaymentService {
     @Transactional
     public PaymentResponse createPayment(PaymentRequest request) {
 
-        // Find patient
+
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new RuntimeException(
                         "Patient not found with id: " + request.getPatientId()));
 
-        // Find appointment
+
         Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
                 .orElseThrow(() -> new RuntimeException(
                         "Appointment not found with id: " + request.getAppointmentId()));
 
-        // Build payment from request
+
         Payment payment = new Payment();
         payment.setPatient(patient);
         payment.setAppointment(appointment);

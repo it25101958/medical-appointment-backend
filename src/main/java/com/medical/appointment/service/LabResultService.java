@@ -18,4 +18,26 @@ public class LabResultService {
 
     private final LabResultRepository labResultRepository;
 
+    private LabResultResponse mapToResponse(LabResult labResult) {
+        LabResultResponse response = new LabResultResponse();
+        response.setId(labResult.getId());
+        response.setAppointmentId(labResult.getAppointmentId());
+        response.setPatientId(labResult.getPatientId());
+        response.setTestName(labResult.getTestName());
+        response.setResultValue(labResult.getResultValue());
+        response.setReferenceRange(labResult.getReferenceRange());
+        response.setStatus(labResult.setStatus());
+        response.setRemarks(labResult.getRemarks());
+        response.setCreatedAt(labResult.getCreatedAt());
+        response.setUpdatedAt(labResult.getUpdatedAt());
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    public LabResultResponse getLabResultById(Long id) {
+        LabResult labResult = labResultRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Lab result not found with id: " + id));
+        return mapToResponse(labResult);
+    }
+
 }

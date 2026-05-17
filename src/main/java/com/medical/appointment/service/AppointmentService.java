@@ -9,10 +9,10 @@ import com.medical.appointment.model.enums.AccessLevel;
 import com.medical.appointment.model.enums.AppointmentStatus;
 import com.medical.appointment.model.enums.DayOfWeek;
 
-import com.medical.appointment.dto.appoinment.request.appointmentCreateRequest;
-import com.medical.appointment.dto.appoinment.request.appointmentUpdateRequest;
-import com.medical.appointment.dto.appoinment.request.appointmentStatusUpdateRequest;
-import com.medical.appointment.dto.appoinment.response.appointmentResponse;
+import com.medical.appointment.dto.appoinment.request.AppointmentCreateRequest;
+import com.medical.appointment.dto.appoinment.request.AppointmentUpdateRequest;
+import com.medical.appointment.dto.appoinment.request.AppointmentStatusUpdateRequest;
+import com.medical.appointment.dto.appoinment.response.AppointmentResponse;
 
 import com.medical.appointment.repository.AppointmentRepository;
 import com.medical.appointment.repository.PatientRepository;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +43,7 @@ public class AppointmentService {
     private static final int STANDARD_DURATION_MINUTES = 30;
 
     @Transactional
-    public appointmentResponse createAppointment(appointmentCreateRequest request) {
+    public AppointmentResponse createAppointment(AppointmentCreateRequest request) {
         if (request.getAppointmentDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Appointment date cannot be in the past");
         }
@@ -85,7 +84,7 @@ public class AppointmentService {
         return convertToResponseDto(savedAppointment);
     }
 
-    public List<appointmentResponse> getAllAppointments() {
+    public List<AppointmentResponse> getAllAppointments() {
         String currentEmail = securityAccessUtil.getCurrentUserEmail();
         if (currentEmail == null) {
             throw new org.springframework.security.access.AccessDeniedException("Access Denied: User is not authenticated.");
@@ -111,7 +110,7 @@ public class AppointmentService {
                 .toList();
     }
 
-    public appointmentResponse getAppointmentById(Integer appointmentId) {
+    public AppointmentResponse getAppointmentById(Integer appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Appointment not found with ID: " + appointmentId));
 
@@ -131,7 +130,7 @@ public class AppointmentService {
     }
 
     @Transactional
-    public appointmentResponse updateAppointment(Integer appointmentId, appointmentUpdateRequest request) {
+    public AppointmentResponse updateAppointment(Integer appointmentId, AppointmentUpdateRequest request) {
         verifyAdminOrStaffAccess();
 
         Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -179,7 +178,7 @@ public class AppointmentService {
     }
 
     @Transactional
-    public appointmentResponse updateAppointmentStatus(Integer appointmentId, appointmentStatusUpdateRequest request) {
+    public AppointmentResponse updateAppointmentStatus(Integer appointmentId, AppointmentStatusUpdateRequest request) {
         verifyAdminOrStaffAccess();
 
         Appointment appointment = appointmentRepository.findById(appointmentId)
@@ -230,8 +229,8 @@ public class AppointmentService {
         }
     }
 
-    private appointmentResponse convertToResponseDto(Appointment appointment) {
-        appointmentResponse dto = new appointmentResponse();
+    private AppointmentResponse convertToResponseDto(Appointment appointment) {
+        AppointmentResponse dto = new AppointmentResponse();
         dto.setAppointmentId(appointment.getAppointmentId());
         dto.setAppointmentNumber(appointment.getAppointmentNumber());
         dto.setAppointmentDate(appointment.getAppointmentDate());

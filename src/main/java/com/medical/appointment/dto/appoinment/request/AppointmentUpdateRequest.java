@@ -9,12 +9,10 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Setter
-public class appointmentUpdateRequest {
+public class AppointmentUpdateRequest {
 
     private Integer doctorId;
 

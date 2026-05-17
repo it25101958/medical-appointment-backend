@@ -1,14 +1,13 @@
 package com.medical.appointment.controller;
 
-import com.medical.appointment.dto.appoinment.request.appointmentCreateRequest;
-import com.medical.appointment.dto.appoinment.request.appointmentStatusUpdateRequest;
-import com.medical.appointment.dto.appoinment.request.appointmentUpdateRequest;
-import com.medical.appointment.dto.appoinment.response.appointmentResponse;
+import com.medical.appointment.dto.appoinment.request.AppointmentCreateRequest;
+import com.medical.appointment.dto.appoinment.request.AppointmentStatusUpdateRequest;
+import com.medical.appointment.dto.appoinment.request.AppointmentUpdateRequest;
+import com.medical.appointment.dto.appoinment.response.AppointmentResponse;
 import com.medical.appointment.service.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,37 +22,37 @@ public class AppointmentController {
     // Create a new appointment (Returns 201 Created status code)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public appointmentResponse createAppointment(
-            @Valid @RequestBody appointmentCreateRequest request
+    public AppointmentResponse createAppointment(
+            @Valid @RequestBody AppointmentCreateRequest request
     ) {
         return appointmentService.createAppointment(request);
     }
 
     // Get all appointments (Admins/Staff see all, Doctors see only their own)
     @GetMapping
-    public List<appointmentResponse> getAllAppointments() {
+    public List<AppointmentResponse> getAllAppointments() {
         return appointmentService.getAllAppointments();
     }
 
     // Get appointment details by ID
     @GetMapping("/{id}")
-    public appointmentResponse getAppointmentById(@PathVariable Integer id) {
+    public AppointmentResponse getAppointmentById(@PathVariable Integer id) {
         return appointmentService.getAppointmentById(id);
     }
 
     @PutMapping("/{id}")
-    public appointmentResponse updateAppointment(
+    public AppointmentResponse updateAppointment(
             @PathVariable Integer id,
-            @Valid @RequestBody appointmentUpdateRequest request
+            @Valid @RequestBody AppointmentUpdateRequest request
     ) {
         return appointmentService.updateAppointment(id, request);
     }
 
     // Update appointment status (Restricted to Admin and Staff)
     @PatchMapping("/{id}/status")
-    public appointmentResponse updateAppointmentStatus(
+    public AppointmentResponse updateAppointmentStatus(
             @PathVariable Integer id,
-            @Valid @RequestBody appointmentStatusUpdateRequest request
+            @Valid @RequestBody AppointmentStatusUpdateRequest request
     ) {
         return appointmentService.updateAppointmentStatus(id, request);
     }

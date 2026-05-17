@@ -56,6 +56,33 @@ public class SecurityAccessUtil {
                 }, () -> { throw new AccessDeniedException("Access Denied: Staff record not found."); });
     }
 
+    public void validateStrictOwnership(String resourceOwnerEmail) {
+        if (!isOwner(resourceOwnerEmail)) {
+            throw new AccessDeniedException("Access Denied: Only the owner can perform this action.");
+        }
+    }
+
+    public void validatePrescriptionOwnerAccess(String prescriptionOwnerEmail) {
+        validateDoctorAccess();
+        validateStrictOwnership(prescriptionOwnerEmail);
+    }
+
+    public void validatePrescriptionViewAccess(String doctorEmail, String patientEmail) {
+        boolean isDoctorOwner = hasAnyRole("ROLE_DOCTOR") && isOwner(doctorEmail);
+        boolean isPatientOwner = hasAnyRole("ROLE_PATIENT") && isOwner(patientEmail);
+        boolean isAdmin = hasAnyRole("ROLE_ADMIN");
+
+        if (!(isDoctorOwner || isPatientOwner || isAdmin)) {
+            throw new AccessDeniedException("Access Denied: You do not have permission to view this prescription.");
+        }
+    }
+
+    public void validateAdminReadAccess() {
+        if (!hasAnyRole("ROLE_ADMIN")) {
+            throw new AccessDeniedException("Access Denied: Only admins can view this list.");
+        }
+    }
+
     public void validateDoctorAccess() {
         if (!hasAnyRole("ROLE_DOCTOR")) {
             throw new AccessDeniedException("Access Denied: Only doctors are permitted to perform this action.");

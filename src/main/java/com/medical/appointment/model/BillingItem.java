@@ -10,8 +10,11 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "billing_item")
@@ -40,22 +43,35 @@ public class BillingItem {
     @Column(nullable = false, length = 255)
     private String description;
 
-    // How many units
+
     @NotNull
     @Min(1)
     @Column(nullable = false)
     private Integer quantity;
 
-    // Price per unit
+
     @NotNull
     @DecimalMin("0.0")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    // totalPrice = quantity x unitPrice
+
     @NotNull
     @DecimalMin("0.0")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    public BigDecimal calculateTotalPrice() {
+        if (unitPrice == null || quantity == null) return BigDecimal.ZERO;
+        return unitPrice.multiply(BigDecimal.valueOf(quantity));
+    }
 
 }

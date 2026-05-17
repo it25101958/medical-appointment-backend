@@ -23,7 +23,7 @@ public class BaseUserRequest {
 
     @NotBlank(message = "NIC is required")
     @Pattern(regexp = "^([0-9]{9}[Vv]|[0-9]{12})$", message = "Invalid NIC format")
-    private String NIC;
+    private String nic;
 
     @NotNull(message = "Date of birth is required")
     private LocalDate dateOfBirth;

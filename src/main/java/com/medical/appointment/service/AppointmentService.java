@@ -14,16 +14,14 @@ import com.medical.appointment.dto.appoinment.request.AppointmentUpdateRequest;
 import com.medical.appointment.dto.appoinment.request.AppointmentStatusUpdateRequest;
 import com.medical.appointment.dto.appoinment.response.AppointmentResponse;
 
-import com.medical.appointment.repository.AppointmentRepository;
-import com.medical.appointment.repository.PatientRepository;
-import com.medical.appointment.repository.DoctorRepository;
-import com.medical.appointment.repository.RoomRepository;
+import com.medical.appointment.repository.*;
 import com.medical.appointment.security.SecurityAccessUtil;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -37,7 +35,8 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
-    private final RoomRepository roomScheduleRepository;
+    private final RoomRepository roomRepository;
+    private final RoomScheduleRepository roomScheduleRepository;
     private final SecurityAccessUtil securityAccessUtil;
 
     private static final int STANDARD_DURATION_MINUTES = 30;
@@ -48,8 +47,10 @@ public class AppointmentService {
             throw new IllegalArgumentException("Appointment date cannot be in the past");
         }
 
-        Patient patient = patientRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new IllegalArgumentException("Patient not found with ID: " + request.getPatientId()));
+        String currentEmail = securityAccessUtil.getCurrentUserEmail();
+
+        Patient patient = patientRepository.findByUserEmail(currentEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Patient profile not found for logged-in user"));
 
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
                 .orElseThrow(() -> new IllegalArgumentException("Doctor not found with ID: " + request.getDoctorId()));
@@ -108,6 +109,44 @@ public class AppointmentService {
         return appointments.stream()
                 .map(this::convertToResponseDto)
                 .toList();
+    }
+
+    public List<LocalTime> getAvailableSlots(Integer doctorId, LocalDate date) {
+        if (date.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Date cannot be in the past");
+        }
+
+        DayOfWeek dayOfWeek = DayOfWeek.valueOf(date.getDayOfWeek().name());
+
+        List<RoomSchedule> schedules =
+                roomScheduleRepository.findByDoctor_DoctorIdAndDayOfWeek(doctorId, dayOfWeek);
+
+        if (schedules.isEmpty()) {
+            return List.of();
+        }
+
+        List<Appointment> bookedAppointments =
+                appointmentRepository.findBookedAppointmentsByDoctorAndDate(doctorId, date);
+
+        List<LocalTime> bookedTimes = bookedAppointments.stream()
+                .map(Appointment::getAppointmentTime)
+                .toList();
+
+        List<LocalTime> availableSlots = new ArrayList<>();
+
+        for (RoomSchedule schedule : schedules) {
+            LocalTime slot = schedule.getStartTime();
+
+            while (!slot.plusMinutes(STANDARD_DURATION_MINUTES).isAfter(schedule.getEndTime())) {
+                if (!bookedTimes.contains(slot)) {
+                    availableSlots.add(slot);
+                }
+
+                slot = slot.plusMinutes(STANDARD_DURATION_MINUTES);
+            }
+        }
+
+        return availableSlots;
     }
 
     public AppointmentResponse getAppointmentById(Integer appointmentId) {

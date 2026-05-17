@@ -13,10 +13,6 @@ import java.time.LocalTime;
 @Getter
 @Setter
 public class AppointmentCreateRequest {
-
-    @NotNull(message = "Patient ID is required")
-    private Integer patientId;
-
     @NotNull(message = "Doctor ID is required")
     private Integer doctorId;
 

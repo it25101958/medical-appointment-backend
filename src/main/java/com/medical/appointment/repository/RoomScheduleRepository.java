@@ -39,6 +39,11 @@ public interface RoomScheduleRepository extends JpaRepository<RoomSchedule, Inte
             @Param("endTime") LocalTime endTime
     );
 
+    List<RoomSchedule> findByDoctor_DoctorIdAndDayOfWeek(
+            Integer doctorId,
+            DayOfWeek dayOfWeek
+    );
+
     @Query("SELECT COUNT(rs) > 0 FROM RoomSchedule rs WHERE rs.doctor = :doctor " +
             "AND rs.dayOfWeek = :dayOfWeek " +
             "AND (:startTime < rs.endTime AND :endTime > rs.startTime)")

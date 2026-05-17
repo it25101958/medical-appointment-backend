@@ -92,7 +92,7 @@ public class AuthService {
     }
     @Transactional
     public PatientResponse registerPatient(PatientRegisterRequest request) {
-        validateUniqueness(request.getEmail(), request.getNIC());
+        validateUniqueness(request.getEmail(), request.getNic());
 
         User user = prepareNewUser(request, UserRole.PATIENT);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -101,10 +101,10 @@ public class AuthService {
         emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getVerificationCode());
 
         Patient patient = new Patient();
-        patient.setUser(savedUser);
         patient.setEmergencyContact(request.getEmergencyContact());
         patient.setBloodGroup(request.getBloodGroup());
         patient.setAllergies(request.getAllergies());
+        patient.setUser(savedUser);
 
         Patient savedPatient = patientRepository.save(patient);
         return mapToPatientResponse(savedPatient);
@@ -113,7 +113,7 @@ public class AuthService {
     @Transactional
     public DoctorResponse registerDoctor(DoctorRegisterRequest request) {
         getAuthenticatedAdmin();
-        validateUniqueness(request.getEmail(), request.getNIC());
+        validateUniqueness(request.getEmail(), request.getNic());
 
         User user = prepareNewUser(request, UserRole.DOCTOR);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -136,7 +136,7 @@ public class AuthService {
     @Transactional
     public StaffResponse registerStaff(StaffRegisterRequest request) {
         getAuthenticatedAdmin();
-        validateUniqueness(request.getEmail(), request.getNIC());
+        validateUniqueness(request.getEmail(), request.getNic());
 
         User user = prepareNewUser(request, UserRole.STAFF);
         user.setRoleType(UserRole.STAFF.getValue());
@@ -162,7 +162,7 @@ public class AuthService {
             throw new AccessDeniedException("Only Super Admins can create new Admin accounts.");
         }
 
-        validateUniqueness(request.getEmail(), request.getNIC());
+        validateUniqueness(request.getEmail(), request.getNic());
 
         User user = prepareNewUser(request, UserRole.ADMIN);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -369,7 +369,7 @@ public class AuthService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setPhone(request.getPhone());
-        user.setNIC(request.getNIC());
+        user.setNIC(request.getNic());
         user.setDateOfBirth(request.getDateOfBirth());
         user.setGender(request.getGender());
         user.setAddress(request.getAddress());

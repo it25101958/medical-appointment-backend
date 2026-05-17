@@ -32,6 +32,22 @@ public class LabResultService {
         response.setUpdatedAt(labResult.getUpdatedAt());
         return response;
     }
+    @Transactional
+    public LabResultResponse createLabResult(LabResultRequest request) {
+        LabResult labResult = LabResult.builder()
+                .appointmentId(request.getAppointmentId())
+                .patientId(request.getPatientId())
+                .testName(request.getTestName())
+                .resultValue(request.getResultValue())
+                .referenceRange(request.getReferenceRange())
+                .status(request.getStatus())
+                .remarks(request.getRemarks())
+                .testDate(request.getTestDate())
+                .build();
+
+        LabResult savedResult = labResultRepository.save(labResult);
+        return mapToResponse(savedResult);
+    }
 
     @Transactional(readOnly = true)
     public LabResultResponse getLabResultById(Long id) {

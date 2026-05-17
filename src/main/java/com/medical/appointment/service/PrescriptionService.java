@@ -9,8 +9,11 @@ import com.medical.appointment.repository.*;
 import com.medical.appointment.security.SecurityAccessUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,9 +30,10 @@ public class PrescriptionService {
 
     @Transactional
     public PrescriptionResponse createPrescription(PrescriptionRequest request) {
-        securityAccessUtil.validateDoctorAccess();
         Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
                 .orElseThrow(() -> new EntityNotFoundException("Appointment not found with ID: " + request.getAppointmentId()));
+
+        securityAccessUtil.validateStrictOwnership(appointment.getDoctor().getUser().getEmail());
 
         if (prescriptionRepository.existsByAppointmentAppointmentId(request.getAppointmentId())) {
             throw new IllegalStateException("A prescription already exists for this appointment.");
@@ -63,21 +67,42 @@ public class PrescriptionService {
     }
 
     @Transactional(readOnly = true)
-    public List<PrescriptionResponse> getAllPrescriptions() {
-        securityAccessUtil.validateAdminLevel(AccessLevel.SUPER_ADMIN, AccessLevel.FULL);
-        return prescriptionRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public Page<PrescriptionResponse> getAllPrescriptions(Pageable pageable) {
+        securityAccessUtil.validateAdminReadAccess();
+        return prescriptionRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     @Transactional(readOnly = true)
     public PrescriptionResponse getPrescriptionById(Integer id) {
         Prescription p = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Prescription not found with ID: " + id));
-        String ownerEmail = p.getDoctor().getUser().getEmail();
-        securityAccessUtil.validateDoctorAccess();
-        securityAccessUtil.validateOwnership(ownerEmail);
+        securityAccessUtil.validatePrescriptionViewAccess(
+                p.getDoctor().getUser().getEmail(),
+                p.getPatient().getUser().getEmail());
+
         return mapToResponse(p);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PrescriptionResponse> getMyPrescriptions(Pageable pageable) {
+        String email = securityAccessUtil.getCurrentUserEmail();
+
+        if (securityAccessUtil.hasAnyRole("ROLE_PATIENT")) {
+            return prescriptionRepository.findByPatientUserEmail(email, pageable)
+                    .map(this::mapToResponse);
+        }
+
+        if (securityAccessUtil.hasAnyRole("ROLE_DOCTOR")) {
+            return prescriptionRepository.findByDoctorUserEmail(email, pageable)
+                    .map(this::mapToResponse);
+        }
+
+        if (securityAccessUtil.hasAnyRole("ROLE_ADMIN")) {
+            return prescriptionRepository.findAll(pageable)
+                    .map(this::mapToResponse);
+        }
+        throw new AccessDeniedException("Access Denied: You cannot view prescriptions.");
     }
 
     @Transactional(readOnly = true)
@@ -96,8 +121,9 @@ public class PrescriptionService {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Prescription not found with ID: " + id));
 
-        securityAccessUtil.validateDoctorAccess();
-        securityAccessUtil.validateOwnership(prescription.getDoctor().getUser().getEmail());
+        securityAccessUtil.validatePrescriptionOwnerAccess(
+                prescription.getDoctor().getUser().getEmail()
+        );
 
         prescription.setStatus(request.getStatus());
         prescription.setNotes(request.getNotes());
@@ -126,11 +152,14 @@ public class PrescriptionService {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Prescription not found with ID: " + id));
 
-        securityAccessUtil.validateDoctorAccess();
-        securityAccessUtil.validateOwnership(prescription.getDoctor().getUser().getEmail());
+        // Only the doctor who owns/created the prescription can delete.
+        // Admin cannot delete.
+        securityAccessUtil.validatePrescriptionOwnerAccess(
+                prescription.getDoctor().getUser().getEmail()
+        );
+
         prescriptionRepository.delete(prescription);
     }
-
 
     private PrescriptionResponse mapToResponse(Prescription p) {
         List<PrescriptionItemResponse> itemDtos = p.getItems().stream()

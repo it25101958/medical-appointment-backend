@@ -53,7 +53,9 @@ public class SecurityAccessUtil {
                     if (!Arrays.asList(allowedStatuses).contains(staff.getStatus())) {
                         throw new AccessDeniedException("Access Denied: Your status is " + staff.getStatus().getLabel());
                     }
-                }, () -> { throw new AccessDeniedException("Access Denied: Staff record not found."); });
+                }, () -> {
+                    throw new AccessDeniedException("Access Denied: Staff record not found.");
+                });
     }
 
     public void validateStrictOwnership(String resourceOwnerEmail) {

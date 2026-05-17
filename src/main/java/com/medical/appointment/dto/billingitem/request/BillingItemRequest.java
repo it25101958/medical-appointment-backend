@@ -35,8 +35,6 @@ public class BillingItemRequest {
 
 
     private Integer medicationId;
-
-
     private Integer labTestId;
 
 }

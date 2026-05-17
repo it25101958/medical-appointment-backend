@@ -8,6 +8,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
+
+
 public class PaymentRequest {
 
     @NotNull(message = "Patient ID is required")

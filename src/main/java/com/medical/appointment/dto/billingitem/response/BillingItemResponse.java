@@ -18,7 +18,6 @@ public class BillingItemResponse {
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
 
-
     private Integer medicationId;
     private Integer labTestId;
 

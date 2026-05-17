@@ -90,6 +90,7 @@ public class AuthService {
 
         return new AuthResponse(token, userSummary);
     }
+
     @Transactional
     public PatientResponse registerPatient(PatientRegisterRequest request) {
         validateUniqueness(request.getEmail(), request.getNic());
@@ -98,15 +99,20 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         User savedUser = userRepository.save(user);
-        emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getVerificationCode());
 
         Patient patient = new Patient();
-        patient.setEmergencyContact(request.getEmergencyContact());
-        patient.setBloodGroup(request.getBloodGroup());
-        patient.setAllergies(request.getAllergies());
         patient.setUser(savedUser);
+        patient.setEmergencyContact(blankToNull(request.getEmergencyContact()));
+        patient.setBloodGroup(request.getBloodGroup());
+        patient.setAllergies(blankToNull(request.getAllergies()));
 
         Patient savedPatient = patientRepository.save(patient);
+
+        emailService.sendVerificationEmail(
+                savedUser.getEmail(),
+                savedUser.getVerificationCode()
+        );
+
         return mapToPatientResponse(savedPatient);
     }
 
@@ -131,6 +137,10 @@ public class AuthService {
         Doctor savedDoctor = doctorRepository.save(doctor);
 
         return mapToDoctorResponse(savedDoctor);
+    }
+
+    private String blankToNull(String value) {
+        return value == null || value.trim().isEmpty() ? null : value.trim();
     }
 
     @Transactional

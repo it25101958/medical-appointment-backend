@@ -7,20 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-import com.medical.appointment.dto.prescription.request.PrescriptionRequest;
-import com.medical.appointment.dto.prescription.response.PrescriptionResponse;
 import com.medical.appointment.service.PrescriptionService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-        import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/api/v1/prescription")
@@ -36,9 +28,31 @@ public class PrescriptionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PrescriptionResponse>> getAllPrescriptions() {
-        List<PrescriptionResponse> prescriptions = prescriptionService.getAllPrescriptions();
-        return ResponseEntity.ok(prescriptions);
+    public ResponseEntity<Page<PrescriptionResponse>> getAllPrescriptions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "prescriptionId")
+        );
+
+        return ResponseEntity.ok(prescriptionService.getAllPrescriptions(pageable));
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<Page<PrescriptionResponse>> getMyPrescriptions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "prescriptionId")
+        );
+
+        return ResponseEntity.ok(prescriptionService.getMyPrescriptions(pageable));
     }
 
     @GetMapping("/{id}")

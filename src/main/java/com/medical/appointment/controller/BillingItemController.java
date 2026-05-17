@@ -40,3 +40,30 @@ public class BillingItemController {
             @PathVariable Integer id) {
         return ResponseEntity.ok(billingItemService.getBillingItemById(id));
     }
+
+
+    @GetMapping("/billing/{billingId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'PATIENT')")
+    public ResponseEntity<List<BillingItemResponse>> getBillingItemsByBillingId(
+            @PathVariable Integer billingId) {
+        return ResponseEntity.ok(
+                billingItemService.getBillingItemsByBillingId(billingId));
+    }
+
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<BillingItemResponse> updateBillingItem(
+            @PathVariable Integer id,
+            @Valid @RequestBody BillingItemRequest request) {
+        return ResponseEntity.ok(billingItemService.updateBillingItem(id, request));
+    }
+
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<Void> deleteBillingItem(@PathVariable Integer id) {
+        billingItemService.deleteBillingItem(id);
+        return ResponseEntity.noContent().build();
+    }
+}

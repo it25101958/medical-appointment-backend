@@ -22,7 +22,6 @@ public class RoomScheduleController {
         return ResponseEntity.ok(roomScheduleService.createSchedule(request));
     }
 
-
     @GetMapping("/doctor/{doctorId}/today")
     public ResponseEntity<List<RoomScheduleResponse>> getDoctorToday(@PathVariable Integer doctorId) {
         return ResponseEntity.ok(roomScheduleService.getDoctorScheduleToday(doctorId));

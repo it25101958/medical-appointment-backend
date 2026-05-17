@@ -24,6 +24,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
             @Param("endTime") LocalTime endTime
     );
 
+    @Query("""
+    SELECT a FROM Appointment a
+    WHERE a.doctor.doctorId = :doctorId
+    AND a.appointmentDate = :date
+    AND a.status <> 'CANCELLED'
+""")
+    List<Appointment> findBookedAppointmentsByDoctorAndDate(
+            @Param("doctorId") Integer doctorId,
+            @Param("date") LocalDate date
+    );
+
     @Query("SELECT MAX(a.appointmentNumber) FROM Appointment a WHERE a.doctor.doctorId = :doctorId AND a.appointmentDate = :date")
     Integer findMaxAppointmentNumberByDoctorAndDate(@Param("doctorId") Integer doctorId, @Param("date") LocalDate date);
 

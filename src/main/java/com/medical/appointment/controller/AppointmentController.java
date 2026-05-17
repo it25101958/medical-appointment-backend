@@ -8,8 +8,10 @@ import com.medical.appointment.service.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -46,6 +48,16 @@ public class AppointmentController {
             @Valid @RequestBody AppointmentUpdateRequest request
     ) {
         return appointmentService.updateAppointment(id, request);
+    }
+
+    @GetMapping("/available-slots")
+    public ResponseEntity<List<LocalTime>> getAvailableSlots(
+            @RequestParam Integer doctorId,
+            @RequestParam LocalDate date
+    ) {
+        return ResponseEntity.ok(
+                appointmentService.getAvailableSlots(doctorId, date)
+        );
     }
 
     // Update appointment status (Restricted to Admin and Staff)

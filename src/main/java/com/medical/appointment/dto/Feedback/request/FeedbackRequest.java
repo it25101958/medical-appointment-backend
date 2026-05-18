@@ -11,12 +11,6 @@ public class FeedbackRequest {
     @NotNull(message = "Appointment ID is required")
     private Integer appointmentId;
 
-    @NotNull(message = "Patient ID is required")
-    private Integer patientId;
-
-    @NotNull(message = "Doctor ID is required")
-    private Integer doctorId;
-
     @Min(1) @Max(5)
     private int rating;
 

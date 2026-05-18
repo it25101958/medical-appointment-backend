@@ -39,6 +39,21 @@ public class RoomScheduleService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public List<RoomScheduleResponse> getAllSchedules() {
+        securityAccessUtil.validateAdminLevel(
+                AccessLevel.READ_ONLY,
+                AccessLevel.LIMITED,
+                AccessLevel.FULL,
+                AccessLevel.SUPER_ADMIN
+        );
+
+        return roomScheduleRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     @Transactional
     public RoomScheduleResponse createSchedule(RoomScheduleRequest request) {
         securityAccessUtil.validateAdminLevel(AccessLevel.FULL, AccessLevel.SUPER_ADMIN);
@@ -95,6 +110,8 @@ public class RoomScheduleService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
+
 
     @Transactional
     public RoomScheduleResponse updateSchedule(Integer scheduleId, RoomScheduleRequest request) {

@@ -22,6 +22,11 @@ public class RoomScheduleController {
         return ResponseEntity.ok(roomScheduleService.createSchedule(request));
     }
 
+    @GetMapping
+    public ResponseEntity<List<RoomScheduleResponse>> getAllSchedules() {
+        return ResponseEntity.ok(roomScheduleService.getAllSchedules());
+    }
+
     @GetMapping("/doctor/{doctorId}/today")
     public ResponseEntity<List<RoomScheduleResponse>> getDoctorToday(@PathVariable Integer doctorId) {
         return ResponseEntity.ok(roomScheduleService.getDoctorScheduleToday(doctorId));
@@ -36,5 +41,21 @@ public class RoomScheduleController {
     public ResponseEntity<List<RoomScheduleResponse>> getAllDoctorSchedules(@PathVariable Integer doctorId) {
         List<RoomScheduleResponse> schedules = roomScheduleService.getAllDoctorSchedules(doctorId);
         return ResponseEntity.ok(schedules);
+    }
+
+    @PutMapping("/{scheduleId}")
+    public ResponseEntity<RoomScheduleResponse> updateSchedule(
+            @PathVariable Integer scheduleId,
+            @Valid @RequestBody RoomScheduleRequest request
+    ) {
+        return ResponseEntity.ok(roomScheduleService.updateSchedule(scheduleId, request));
+    }
+
+    @DeleteMapping("/{scheduleId}")
+    public ResponseEntity<Void> deleteSchedule(
+            @PathVariable Integer scheduleId
+    ) {
+        roomScheduleService.deleteSchedule(scheduleId);
+        return ResponseEntity.noContent().build();
     }
 }

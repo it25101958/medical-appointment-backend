@@ -27,4 +27,12 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
 
     // Check that patient was already gave feedback for a specific appointment
     boolean existsByPatientPatientIdAndAppointmentAppointmentId(int patientId, int appointmentId);
+
+    List<Feedback> findByAppointmentAppointmentId(Integer appointmentId);
+
+    boolean existsByAppointmentAppointmentId(Integer appointmentId);
+
+    List<Feedback> findByPatientPatientId(Integer patientId);
+
+    List<Feedback> findByDoctorDoctorId(Integer doctorId);
 }

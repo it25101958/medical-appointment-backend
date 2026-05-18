@@ -30,6 +30,7 @@ public class LabOrderService {
     private final LaboratoryRepository laboratoryRepository;
     private final LabTestRepository labTestRepository;
     private final SecurityAccessUtil securityAccessUtil;
+    private final AppointmentClinicalAccessService appointmentClinicalAccessService;
 
     @Transactional
     public LabOrderResponse createLabOrder(LabOrderRequest request) {
@@ -39,6 +40,8 @@ public class LabOrderService {
 
         Laboratory laboratory = laboratoryRepository.findById(request.getLaboratoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Laboratory not found"));
+
+        appointmentClinicalAccessService.validateDoctorCanModifyDuringAppointment(appointment);
 
         if (labOrderRepository.existsByAppointmentAppointmentId(request.getAppointmentId())) {
             throw new IllegalStateException("A lab order already exists for this appointment.");
@@ -69,8 +72,13 @@ public class LabOrderService {
     public LabOrderResponse updateLabOrder(Integer id, LabOrderRequest request) {
         securityAccessUtil.validateDoctorAccess();
 
+
         LabOrder order = labOrderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Lab order not found"));
+
+        appointmentClinicalAccessService.validateDoctorCanModifyDuringAppointment(
+                order.getAppointment()
+        );
 
         boolean hasStarted = order.getItems().stream()
                 .anyMatch(item -> !"PENDING".equals(item.getStatus()));
@@ -115,6 +123,12 @@ public class LabOrderService {
 
         LabOrder order = labOrderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Lab order not found"));
+
+        appointmentClinicalAccessService.validateDoctorCanModifyDuringAppointment(
+                order.getAppointment()
+        );
+
+
         if (order.getItems().stream().anyMatch(i -> !"PENDING".equals(i.getStatus()))) {
             throw new IllegalStateException("Cannot delete order because it is already being processed by the lab.");
         }

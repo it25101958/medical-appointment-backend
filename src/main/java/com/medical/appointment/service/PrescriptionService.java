@@ -27,13 +27,16 @@ public class PrescriptionService {
     private final AppointmentRepository appointmentRepository;
     private final MedicationRepository medicationRepository;
     private final SecurityAccessUtil securityAccessUtil;
+    private final AppointmentClinicalAccessService appointmentClinicalAccessService;
 
     @Transactional
     public PrescriptionResponse createPrescription(PrescriptionRequest request) {
         Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
-                .orElseThrow(() -> new EntityNotFoundException("Appointment not found with ID: " + request.getAppointmentId()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Appointment not found with ID: " + request.getAppointmentId()
+                ));
 
-        securityAccessUtil.validateStrictOwnership(appointment.getDoctor().getUser().getEmail());
+        appointmentClinicalAccessService.validateDoctorCanModifyDuringAppointment(appointment);
 
         if (prescriptionRepository.existsByAppointmentAppointmentId(request.getAppointmentId())) {
             throw new IllegalStateException("A prescription already exists for this appointment.");
@@ -49,7 +52,9 @@ public class PrescriptionService {
 
         List<PrescriptionItem> items = request.getItems().stream().map(itemDto -> {
             Medication medication = medicationRepository.findById(itemDto.getMedicationId())
-                    .orElseThrow(() -> new EntityNotFoundException("Medication not found ID: " + itemDto.getMedicationId()));
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Medication not found ID: " + itemDto.getMedicationId()
+                    ));
 
             PrescriptionItem item = new PrescriptionItem();
             item.setPrescription(prescription);
@@ -61,10 +66,11 @@ public class PrescriptionService {
         }).toList();
 
         prescription.setItems(items);
-        Prescription savedPrescription = prescriptionRepository.save(prescription);
 
-        return mapToResponse(savedPrescription);
+        return mapToResponse(prescriptionRepository.save(prescription));
     }
+
+
 
     @Transactional(readOnly = true)
     public Page<PrescriptionResponse> getAllPrescriptions(Pageable pageable) {
@@ -119,10 +125,12 @@ public class PrescriptionService {
     @Transactional
     public PrescriptionResponse updatePrescription(Integer id, PrescriptionRequest request) {
         Prescription prescription = prescriptionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Prescription not found with ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Prescription not found with ID: " + id
+                ));
 
-        securityAccessUtil.validatePrescriptionOwnerAccess(
-                prescription.getDoctor().getUser().getEmail()
+        appointmentClinicalAccessService.validateDoctorCanModifyDuringAppointment(
+                prescription.getAppointment()
         );
 
         prescription.setStatus(request.getStatus());
@@ -131,7 +139,9 @@ public class PrescriptionService {
 
         List<PrescriptionItem> newItems = request.getItems().stream().map(itemDto -> {
             Medication medication = medicationRepository.findById(itemDto.getMedicationId())
-                    .orElseThrow(() -> new EntityNotFoundException("Medication not found ID: " + itemDto.getMedicationId()));
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Medication not found ID: " + itemDto.getMedicationId()
+                    ));
 
             PrescriptionItem item = new PrescriptionItem();
             item.setPrescription(prescription);
@@ -150,12 +160,12 @@ public class PrescriptionService {
     @Transactional
     public void deletePrescription(Integer id) {
         Prescription prescription = prescriptionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Prescription not found with ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Prescription not found with ID: " + id
+                ));
 
-        // Only the doctor who owns/created the prescription can delete.
-        // Admin cannot delete.
-        securityAccessUtil.validatePrescriptionOwnerAccess(
-                prescription.getDoctor().getUser().getEmail()
+        appointmentClinicalAccessService.validateDoctorCanModifyDuringAppointment(
+                prescription.getAppointment()
         );
 
         prescriptionRepository.delete(prescription);

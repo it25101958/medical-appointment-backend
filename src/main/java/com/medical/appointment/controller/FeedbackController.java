@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.medical.appointment.repository.FeedbackRepository;
 
 import java.util.List;
 
@@ -21,7 +20,9 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
 
     @PostMapping
-    public ResponseEntity<FeedbackResponse> createFeedback(@Valid @RequestBody FeedbackRequest request) {
+    public ResponseEntity<FeedbackResponse> createFeedback(
+            @Valid @RequestBody FeedbackRequest request
+    ) {
         return ResponseEntity.ok(feedbackService.createFeedback(request));
     }
 
@@ -35,17 +36,38 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbackService.getAllFeedbackResponses());
     }
 
+    @GetMapping("/public")
+    public ResponseEntity<List<FeedbackResponse>> getPublicFeedbacks() {
+        return ResponseEntity.ok(feedbackService.getPublicFeedbackResponses());
+    }
+
+    @GetMapping("/appointment/{appointmentId}")
+    public ResponseEntity<List<FeedbackResponse>> getByAppointment(
+            @PathVariable Integer appointmentId
+    ) {
+        return ResponseEntity.ok(
+                feedbackService.getFeedbackResponsesByAppointment(appointmentId)
+        );
+    }
+
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<FeedbackResponse>> getByPatient(@PathVariable int patientId) {
+        return ResponseEntity.ok(feedbackService.getFeedbackResponsesByPatient(patientId));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<FeedbackResponse> updateFeedback(
             @PathVariable int id,
-            @Valid @RequestBody FeedbackUpdateRequest request) {
+            @Valid @RequestBody FeedbackUpdateRequest request
+    ) {
         return ResponseEntity.ok(feedbackService.updateFeedback(id, request));
     }
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<FeedbackResponse> updateStatus(
             @PathVariable int id,
-            @RequestParam FeedbackStatus status) {
+            @RequestParam FeedbackStatus status
+    ) {
         return ResponseEntity.ok(feedbackService.updateFeedbackStatus(id, status));
     }
 
@@ -53,10 +75,5 @@ public class FeedbackController {
     public ResponseEntity<Void> deleteFeedback(@PathVariable int id) {
         feedbackService.removeFeedback(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<FeedbackResponse>> getByPatient(@PathVariable int patientId) {
-        return ResponseEntity.ok(feedbackService.getFeedbackResponsesByPatient(patientId));
     }
 }

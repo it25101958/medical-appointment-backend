@@ -15,6 +15,7 @@ public class AppointmentClinicalAccessService {
     private final SecurityAccessUtil securityAccessUtil;
 
     public void validateDoctorCanModifyDuringAppointment(Appointment appointment) {
+
         securityAccessUtil.validateDoctorAccess();
 
         securityAccessUtil.validateStrictOwnership(

@@ -17,7 +17,6 @@ public class BillingItemRequest {
 
     @NotNull(message = "Billing ID is required")
     private Integer billingId;
-
     private Integer labTestId;
 
     @NotNull(message = "Item type is required")

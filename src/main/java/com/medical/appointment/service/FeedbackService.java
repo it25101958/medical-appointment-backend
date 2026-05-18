@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -119,6 +120,16 @@ public class FeedbackService {
 
         return feedbackRepository.findAll()
                 .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<FeedbackResponse> getPublicFeedbackResponses() {
+        return feedbackRepository.findByStatus(FeedbackStatus.APPROVED)
+                .stream()
+                .sorted(Comparator.comparing(Feedback::getCreatedAt).reversed())
+                .limit(8)
                 .map(this::mapToResponse)
                 .toList();
     }

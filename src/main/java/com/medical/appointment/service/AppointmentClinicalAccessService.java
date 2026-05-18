@@ -5,7 +5,6 @@ import com.medical.appointment.model.enums.AppointmentStatus;
 import com.medical.appointment.security.SecurityAccessUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 
 @Service

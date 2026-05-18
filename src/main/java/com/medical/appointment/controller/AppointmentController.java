@@ -72,6 +72,7 @@ public class AppointmentController {
 
     // Update appointment status (Restricted to Admin and Staff)
     @PatchMapping("/{id}/status")
+
     public AppointmentResponse updateAppointmentStatus(
             @PathVariable Integer id,
             @Valid @RequestBody AppointmentStatusUpdateRequest request

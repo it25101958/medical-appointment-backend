@@ -1,9 +1,32 @@
 package com.medical.appointment.service;
 
+import com.medical.appointment.dto.appoinment.request.AppointmentCreateRequest;
+import com.medical.appointment.dto.appoinment.request.AppointmentStatusUpdateRequest;
+import com.medical.appointment.dto.appoinment.request.AppointmentUpdateRequest;
+import com.medical.appointment.dto.appoinment.response.AppointmentDoctorSummaryResponse;
+import com.medical.appointment.dto.appoinment.response.AppointmentPatientSummaryResponse;
+import com.medical.appointment.dto.appoinment.response.AppointmentResponse;
+import com.medical.appointment.dto.room.response.RoomResponse;
+import com.medical.appointment.model.*;
+import com.medical.appointment.model.enums.AccessLevel;
+import com.medical.appointment.model.enums.AppointmentStatus;
+import com.medical.appointment.model.enums.DayOfWeek;
+import com.medical.appointment.repository.*;
+import com.medical.appointment.security.SecurityAccessUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.medical.appointment.dto.appoinment.response.AppointmentDoctorSummaryResponse;
 import com.medical.appointment.dto.appoinment.response.AppointmentPatientSummaryResponse;
 import com.medical.appointment.model.*;
-import com.medical.appointment.model.enums.AccessLevel;
+        import com.medical.appointment.model.enums.AccessLevel;
 import com.medical.appointment.model.enums.AppointmentStatus;
 import com.medical.appointment.model.enums.DayOfWeek;
 import com.medical.appointment.dto.feedback.response.FeedbackResponse;
@@ -12,7 +35,7 @@ import com.medical.appointment.dto.appoinment.request.AppointmentUpdateRequest;
 import com.medical.appointment.dto.appoinment.request.AppointmentStatusUpdateRequest;
 import com.medical.appointment.dto.appoinment.response.AppointmentResponse;
 import com.medical.appointment.repository.*;
-import com.medical.appointment.security.SecurityAccessUtil;
+        import com.medical.appointment.security.SecurityAccessUtil;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -107,7 +130,6 @@ public class AppointmentService {
                 .map(this::convertToResponseDto)
                 .toList();
     }
-
     public List<LocalTime> getAvailableSlots(Integer doctorId, LocalDate date) {
         if (date.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Date cannot be in the past");
@@ -386,7 +408,7 @@ public class AppointmentService {
         }
 
         if (canCurrentUserViewAppointmentFeedback(appointment)) {
-            List<FeedbackResponse> feedbacks = feedbackRepository
+            List<com.medical.appointment.dto.feedback.response.FeedbackResponse> feedbacks = feedbackRepository
                     .findByAppointmentAppointmentId(appointment.getAppointmentId())
                     .stream()
                     .map(this::mapFeedbackToResponse)
@@ -460,8 +482,8 @@ public class AppointmentService {
         return isPatientOwner || isAssignedDoctor || isAdmin;
     }
 
-    private FeedbackResponse mapFeedbackToResponse(Feedback feedback) {
-        return new FeedbackResponse(
+    private com.medical.appointment.dto.feedback.response.FeedbackResponse mapFeedbackToResponse(Feedback feedback) {
+        return new com.medical.appointment.dto.feedback.response.FeedbackResponse(
                 feedback.getFeedbackId(),
                 feedback.getAppointment().getAppointmentId(),
                 feedback.getPatient().getPatientId(),

@@ -14,4 +14,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Integer> {
     List<Doctor> findBySpecialization(Specialization specialization);
     List<Doctor> findByExperienceYearsGreaterThanEqual(Integer years);
     List<Doctor> findByConsultationFeeLessThanEqual(Double maxFee);
+    List<Doctor> findByUser_IsActiveTrue();
+
 }

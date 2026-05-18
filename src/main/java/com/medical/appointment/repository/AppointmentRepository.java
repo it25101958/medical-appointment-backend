@@ -1,6 +1,7 @@
 package com.medical.appointment.repository;
 
 import com.medical.appointment.model.Appointment;
+import com.medical.appointment.model.enums.AppointmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -39,4 +40,20 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
     Integer findMaxAppointmentNumberByDoctorAndDate(@Param("doctorId") Integer doctorId, @Param("date") LocalDate date);
 
     List<Appointment> findAllByDoctorUserEmail(String email);
+
+    List<Appointment> findByDoctorDoctorIdAndAppointmentDateAndStatusNotOrderByAppointmentTimeAsc(
+            Integer doctorId,
+            LocalDate appointmentDate,
+            AppointmentStatus status
+    );
+
+    List<Appointment> findByDoctorUserEmailAndAppointmentDateAndStatusNotOrderByAppointmentTimeAsc(
+            String email,
+            LocalDate appointmentDate,
+            AppointmentStatus status
+    );
+
+    List<Appointment> findAllByPatientUserEmailOrderByAppointmentDateDescAppointmentTimeDesc(String email);
+
+    List<Appointment> findAllByDoctorUserEmailOrderByAppointmentDateDescAppointmentTimeDesc(String email);
 }

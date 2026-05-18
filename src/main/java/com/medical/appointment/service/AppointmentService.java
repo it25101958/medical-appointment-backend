@@ -1,31 +1,27 @@
 package com.medical.appointment.service;
 
-import com.medical.appointment.model.Patient;
-import com.medical.appointment.model.Doctor;
-import com.medical.appointment.model.Room;
-import com.medical.appointment.model.Appointment;
-import com.medical.appointment.model.RoomSchedule;
+import com.medical.appointment.dto.appoinment.response.AppointmentDoctorSummaryResponse;
+import com.medical.appointment.dto.appoinment.response.AppointmentPatientSummaryResponse;
+import com.medical.appointment.model.*;
 import com.medical.appointment.model.enums.AccessLevel;
 import com.medical.appointment.model.enums.AppointmentStatus;
 import com.medical.appointment.model.enums.DayOfWeek;
-
+import com.medical.appointment.dto.feedback.response.FeedbackResponse;
 import com.medical.appointment.dto.appoinment.request.AppointmentCreateRequest;
 import com.medical.appointment.dto.appoinment.request.AppointmentUpdateRequest;
 import com.medical.appointment.dto.appoinment.request.AppointmentStatusUpdateRequest;
 import com.medical.appointment.dto.appoinment.response.AppointmentResponse;
-
 import com.medical.appointment.repository.*;
 import com.medical.appointment.security.SecurityAccessUtil;
-
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import com.medical.appointment.dto.room.response.RoomResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +34,7 @@ public class AppointmentService {
     private final RoomRepository roomRepository;
     private final RoomScheduleRepository roomScheduleRepository;
     private final SecurityAccessUtil securityAccessUtil;
+    private final FeedbackRepository feedbackRepository;
 
     private static final int STANDARD_DURATION_MINUTES = 30;
 
@@ -147,6 +144,97 @@ public class AppointmentService {
         }
 
         return availableSlots;
+    }
+
+    public List<AppointmentResponse> getTodayAppointmentsByDoctor(Integer doctorId) {
+        String currentEmail = securityAccessUtil.getCurrentUserEmail();
+
+        if (currentEmail == null) {
+            throw new AccessDeniedException("Access Denied: User is not authenticated.");
+        }
+
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new IllegalArgumentException("Doctor not found with ID: " + doctorId));
+
+        boolean isManagementStaff = securityAccessUtil.hasAnyRole(
+                "ROLE_SUPER_ADMIN",
+                "ROLE_ADMIN",
+                "ROLE_STAFF"
+        );
+
+        boolean isAssignedDoctor = securityAccessUtil.hasAnyRole("ROLE_DOCTOR")
+                && securityAccessUtil.isOwner(doctor.getUser().getEmail());
+
+        if (!(isManagementStaff || isAssignedDoctor)) {
+            throw new AccessDeniedException(
+                    "Access Denied: You do not have permission to view this doctor's appointments."
+            );
+        }
+
+        LocalDate today = LocalDate.now();
+
+        return appointmentRepository
+                .findByDoctorDoctorIdAndAppointmentDateAndStatusNotOrderByAppointmentTimeAsc(
+                        doctorId,
+                        today,
+                        AppointmentStatus.CANCELLED
+                )
+                .stream()
+                .map(this::convertToResponseDto)
+                .toList();
+    }
+
+    public List<AppointmentResponse> getMyAppointments() {
+        String currentEmail = securityAccessUtil.getCurrentUserEmail();
+
+        if (currentEmail == null) {
+            throw new AccessDeniedException("Access Denied: User is not authenticated.");
+        }
+
+        List<Appointment> appointments;
+
+        if (securityAccessUtil.hasAnyRole("ROLE_PATIENT")) {
+            appointments = appointmentRepository
+                    .findAllByPatientUserEmailOrderByAppointmentDateDescAppointmentTimeDesc(currentEmail);
+        }
+        else if (securityAccessUtil.hasAnyRole("ROLE_DOCTOR")) {
+            appointments = appointmentRepository
+                    .findAllByDoctorUserEmailOrderByAppointmentDateDescAppointmentTimeDesc(currentEmail);
+        }
+        else if (securityAccessUtil.hasAnyRole("ROLE_SUPER_ADMIN", "ROLE_ADMIN", "ROLE_STAFF")) {
+            appointments = appointmentRepository.findAll();
+        }
+        else {
+            throw new AccessDeniedException(
+                    "Access Denied: You do not have permission to view appointments."
+            );
+        }
+
+        return appointments.stream()
+                .map(this::convertToResponseDto)
+                .toList();
+    }
+
+    public List<AppointmentResponse> getMyTodayAppointments() {
+        securityAccessUtil.validateDoctorAccess();
+
+        String currentEmail = securityAccessUtil.getCurrentUserEmail();
+
+        if (currentEmail == null) {
+            throw new AccessDeniedException("Access Denied: User is not authenticated.");
+        }
+
+        LocalDate today = LocalDate.now();
+
+        return appointmentRepository
+                .findByDoctorUserEmailAndAppointmentDateAndStatusNotOrderByAppointmentTimeAsc(
+                        currentEmail,
+                        today,
+                        AppointmentStatus.CANCELLED
+                )
+                .stream()
+                .map(this::convertToResponseDto)
+                .toList();
     }
 
     public AppointmentResponse getAppointmentById(Integer appointmentId) {
@@ -270,12 +358,13 @@ public class AppointmentService {
 
     private AppointmentResponse convertToResponseDto(Appointment appointment) {
         AppointmentResponse dto = new AppointmentResponse();
+
         dto.setAppointmentId(appointment.getAppointmentId());
         dto.setAppointmentNumber(appointment.getAppointmentNumber());
         dto.setAppointmentDate(appointment.getAppointmentDate());
         dto.setAppointmentTime(appointment.getAppointmentTime());
         dto.setDurationMinutes(appointment.getDurationMinutes());
-        dto.setAppointmentType(appointment.getAppointmentType()); // FIXED: Direct Enum transfer, no raw string methods
+        dto.setAppointmentType(appointment.getAppointmentType());
         dto.setNotes(appointment.getNotes());
         dto.setStatus(appointment.getStatus());
         dto.setCreatedAt(appointment.getCreatedAt());
@@ -283,14 +372,106 @@ public class AppointmentService {
 
         if (appointment.getPatient() != null) {
             dto.setPatientId(appointment.getPatient().getPatientId());
+            dto.setPatient(mapPatientSummary(appointment.getPatient()));
         }
+
         if (appointment.getDoctor() != null) {
             dto.setDoctorId(appointment.getDoctor().getDoctorId());
+            dto.setDoctor(mapDoctorSummary(appointment.getDoctor()));
         }
+
         if (appointment.getRoom() != null) {
             dto.setRoomId(appointment.getRoom().getRoomId());
+            dto.setRoom(mapRoomResponse(appointment.getRoom()));
+        }
+
+        if (canCurrentUserViewAppointmentFeedback(appointment)) {
+            List<FeedbackResponse> feedbacks = feedbackRepository
+                    .findByAppointmentAppointmentId(appointment.getAppointmentId())
+                    .stream()
+                    .map(this::mapFeedbackToResponse)
+                    .toList();
+
+            dto.setFeedbacks(feedbacks);
         }
 
         return dto;
+    }
+
+    private AppointmentPatientSummaryResponse mapPatientSummary(Patient patient) {
+        User user = patient.getUser();
+
+        return AppointmentPatientSummaryResponse.builder()
+                .patientId(patient.getPatientId())
+                .userId(user.getUserId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .fullName(user.getFirstName() + " " + user.getLastName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .bloodGroup(patient.getBloodGroup())
+                .allergies(patient.getAllergies())
+                .build();
+    }
+
+    private AppointmentDoctorSummaryResponse mapDoctorSummary(Doctor doctor) {
+        User user = doctor.getUser();
+
+        return AppointmentDoctorSummaryResponse.builder()
+                .doctorId(doctor.getDoctorId())
+                .userId(user.getUserId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .fullName("Dr. " + user.getFirstName() + " " + user.getLastName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .specialization(doctor.getSpecialization())
+                .qualification(doctor.getQualification())
+                .experienceYears(doctor.getExperienceYears())
+                .consultationFee(doctor.getConsultationFee())
+                .build();
+    }
+
+    private RoomResponse mapRoomResponse(Room room) {
+        return new RoomResponse(
+                room.getRoomId(),
+                room.getRoomNumber(),
+                room.getRoomType(),
+                room.getCapacity(),
+                room.getStatus(),
+                room.getEquipmentAvailable()
+        );
+    }
+
+    private boolean canCurrentUserViewAppointmentFeedback(Appointment appointment) {
+        boolean isPatientOwner = securityAccessUtil.isOwner(
+                appointment.getPatient().getUser().getEmail()
+        );
+
+        boolean isAssignedDoctor = securityAccessUtil.isOwner(
+                appointment.getDoctor().getUser().getEmail()
+        );
+
+        boolean isAdmin = securityAccessUtil.hasAnyRole(
+                "ROLE_SUPER_ADMIN",
+                "ROLE_ADMIN"
+        );
+
+        return isPatientOwner || isAssignedDoctor || isAdmin;
+    }
+
+    private FeedbackResponse mapFeedbackToResponse(Feedback feedback) {
+        return new FeedbackResponse(
+                feedback.getFeedbackId(),
+                feedback.getAppointment().getAppointmentId(),
+                feedback.getPatient().getPatientId(),
+                feedback.getPatient().getUser().getFirstName() + " " + feedback.getPatient().getUser().getLastName(),
+                feedback.getDoctor().getDoctorId(),
+                "Dr. " + feedback.getDoctor().getUser().getFirstName() + " " + feedback.getDoctor().getUser().getLastName(),
+                feedback.getRating(),
+                feedback.getComments(),
+                feedback.getStatus(),
+                feedback.getCreatedAt()
+        );
     }
 }

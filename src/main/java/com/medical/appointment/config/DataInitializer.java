@@ -186,7 +186,15 @@ public class DataInitializer implements CommandLineRunner {
                 "Microscope, Blood Sample Analyzer"
         );
 
-        createRoomSchedulesIfEmpty(room1, room2, doctor1, doctor2);
+        Room room4 = getOrCreateRoom(
+                "R-103",
+                "Consultation",
+                1,
+                RoomStatus.AVAILABLE,
+                "Standard Stethoscope, Blood Pressure Monitor"
+        );
+
+        createRoomSchedulesIfEmpty(room1, room2, room4, doctor1, doctor2, doctor3);
 
         Appointment appointment1 = getOrCreateAppointment(
                 patient1,
@@ -451,28 +459,68 @@ public class DataInitializer implements CommandLineRunner {
     private void createRoomSchedulesIfEmpty(
             Room room1,
             Room room2,
+            Room room3,
             Doctor doctor1,
-            Doctor doctor2
+            Doctor doctor2,
+            Doctor doctor3
     ) {
-        if (roomScheduleRepository.count() > 0) {
-            return;
+        createWeeklyScheduleForDoctor(
+                doctor1,
+                room1,
+                LocalTime.of(1, 0),
+                LocalTime.of(17, 0)
+        );
+
+        createWeeklyScheduleForDoctor(
+                doctor2,
+                room2,
+                LocalTime.of(1, 0),
+                LocalTime.of(17, 0)
+        );
+
+        createWeeklyScheduleForDoctor(
+                doctor3,
+                room3,
+                LocalTime.of(1, 0),
+                LocalTime.of(17, 0)
+        );
+    }
+
+    private void createWeeklyScheduleForDoctor(
+            Doctor doctor,
+            Room room,
+            LocalTime startTime,
+            LocalTime endTime
+    ) {
+        for (DayOfWeek day : DayOfWeek.values()) {
+
+            boolean doctorBusy = roomScheduleRepository.isDoctorBusy(
+                    doctor,
+                    day,
+                    startTime,
+                    endTime
+            );
+
+            boolean roomOccupied = roomScheduleRepository.isRoomOccupied(
+                    room,
+                    day,
+                    startTime,
+                    endTime
+            );
+
+            if (doctorBusy || roomOccupied) {
+                continue;
+            }
+
+            RoomSchedule schedule = new RoomSchedule();
+            schedule.setDoctor(doctor);
+            schedule.setRoom(room);
+            schedule.setDayOfWeek(day);
+            schedule.setStartTime(startTime);
+            schedule.setEndTime(endTime);
+
+            roomScheduleRepository.save(schedule);
         }
-
-        RoomSchedule schedule1 = new RoomSchedule();
-        schedule1.setRoom(room1);
-        schedule1.setDoctor(doctor1);
-        schedule1.setDayOfWeek(DayOfWeek.MONDAY);
-        schedule1.setStartTime(LocalTime.of(9, 0));
-        schedule1.setEndTime(LocalTime.of(17, 0));
-        roomScheduleRepository.save(schedule1);
-
-        RoomSchedule schedule2 = new RoomSchedule();
-        schedule2.setRoom(room2);
-        schedule2.setDoctor(doctor2);
-        schedule2.setDayOfWeek(DayOfWeek.TUESDAY);
-        schedule2.setStartTime(LocalTime.of(8, 30));
-        schedule2.setEndTime(LocalTime.of(16, 30));
-        roomScheduleRepository.save(schedule2);
     }
 
     private Appointment getOrCreateAppointment(

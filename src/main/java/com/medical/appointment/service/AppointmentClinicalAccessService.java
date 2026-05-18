@@ -56,7 +56,7 @@ public class AppointmentClinicalAccessService {
         }
 
         if (!now.isBefore(endDateTime)) {
-            throw new IllegalStateException(
+            throw new IllegalStateException(            
                     "The appointment time has ended. Prescriptions and lab orders can no longer be changed."
             );
         }

@@ -36,6 +36,11 @@ public class FeedbackController {
         return ResponseEntity.ok(feedbackService.getAllFeedbackResponses());
     }
 
+    @GetMapping("/public")
+    public ResponseEntity<List<FeedbackResponse>> getPublicFeedbacks() {
+        return ResponseEntity.ok(feedbackService.getPublicFeedbackResponses());
+    }
+
     @GetMapping("/appointment/{appointmentId}")
     public ResponseEntity<List<FeedbackResponse>> getByAppointment(
             @PathVariable Integer appointmentId

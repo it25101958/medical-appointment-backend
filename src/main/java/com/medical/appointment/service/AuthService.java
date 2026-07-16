@@ -249,7 +249,6 @@ public class AuthService {
         );
 
         userRepository.save(user);
-
         emailService.sendPasswordResetEmail(user.getEmail(), user.getPasswordResetCode());
     }
 
@@ -298,10 +297,10 @@ public class AuthService {
 
     private void validateUniqueness(String email, String nic) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new UserAlreadyExistsException("Email already exists: " + email);
+            throw new UserAlreadyExistsException("Email already exists");
         }
         if (userRepository.findByNIC(nic).isPresent()) {
-            throw new UserAlreadyExistsException("NIC already exists: " + nic);
+            throw new UserAlreadyExistsException("NIC already exists");
         }
     }
 

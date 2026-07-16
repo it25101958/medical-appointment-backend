@@ -1,11 +1,10 @@
 package com.medical.appointment.model.enums;
 
 public enum UserRole {
-    SUPER_ADMIN(1),
-    ADMIN(2),
-    STAFF(3),
-    DOCTOR(4),
-    PATIENT(5);
+    ADMIN(1),
+    STAFF(2),
+    DOCTOR(3),
+    PATIENT(4);
 
     private final int value;
 
@@ -17,7 +16,6 @@ public enum UserRole {
         return value;
     }
 
-    // Optional: Useful helper method for later
     public static UserRole fromInt(int value) {
         for (UserRole role : UserRole.values()) {
             if (role.value == value) {

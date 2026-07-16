@@ -19,25 +19,24 @@ A backend application for managing the daily operations of a clinic or hospital.
 
 ## Technology Stack
 
-| Area | Technology |
-| --- | --- |
-| Language | Java 25 |
-| Framework | Spring Boot 4.0.4 |
-| Web | Spring Web MVC |
-| Persistence | Spring Data JPA / Hibernate |
-| Database | MySQL |
-| Security | Spring Security, JWT, BCrypt |
-| Validation | Jakarta Bean Validation |
-| Email | Spring Mail |
-| Build | Maven Wrapper |
-| Utilities | Lombok |
-| Testing | JUnit 5, Spring Boot Test |
+| Area        | Technology                   |
+| ----------- | ---------------------------- |
+| Language    | Java 25                      |
+| Framework   | Spring Boot 4.0.4            |
+| Web         | Spring Web MVC               |
+| Persistence | Spring Data JPA / Hibernate  |
+| Database    | MySQL                        |
+| Security    | Spring Security, JWT, BCrypt |
+| Validation  | Jakarta Bean Validation      |
+| Email       | Spring Mail                  |
+| Build       | Maven Wrapper                |
+| Utilities   | Lombok                       |
+| Testing     | JUnit 5, Spring Boot Test    |
 
 ## Prerequisites
 
 - JDK 25
 - MySQL server
-- An SMTP account for verification and password-reset emails
 
 A separate Maven installation is optional because Maven Wrapper scripts are included.
 

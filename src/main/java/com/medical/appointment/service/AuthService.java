@@ -239,7 +239,7 @@ public class AuthService {
          * Do not reveal whether the email exists or not.
          * This helps prevent email enumeration attacks.
          */
-        if (user == null || !user.g etIsActive()) {
+        if (user == null || !user.getIsActive()) {
             return;
         }
 
